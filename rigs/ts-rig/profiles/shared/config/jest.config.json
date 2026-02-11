@@ -1,0 +1,9 @@
+{
+    "extends": "@rushstack/heft-jest-plugin/includes/jest-shared.config.json",
+    "roots": [
+        "<rootDir>/obj-commonjs"
+    ],
+    "testMatch": [
+        "<rootDir>/obj-commonjs/**/*.test.js"
+    ]
+}

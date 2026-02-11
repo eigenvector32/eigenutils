@@ -1,0 +1,31 @@
+{
+    "name": "eigenutils",
+    "description": "Utility classes",
+    "version": "0.0.1",
+    "license": "MIT",
+    "private": true,
+    "homepage": "https://github.com/eigenvector32/eigenutils",
+    "bugs": {
+        "url": "https://github.com/eigenvector32/eigenutils/issues",
+        "email": "mattowen32@outlook.com"
+    },
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/eigenvector32/eigenutils.git"
+    },
+    "scripts": {
+        "build": "heft build --clean",
+        "test": "node --expose-gc \"./node_modules/@rushstack/heft/lib/start.js\" test --log-heap-usage --jest:log-heap-usage --clean",
+        "_phase:build": "heft run --only build --clean",
+        "_phase:test": "node --expose-gc \"./node_modules/@rushstack/heft/lib/start.js\" run --only test"
+    },
+    "devDependencies": {
+        "ts-rig": "workspace:*",
+        "typescript": "^5.9.3"
+    },
+    "dependencies": {
+        "@rushstack/heft": "~1.1.7",
+        "tslib": "~2.8.1",
+        "@microsoft/fast-element": "~2.9.0"
+    }
+}

@@ -1,0 +1,223 @@
+import { MultiArgEmitter, MultiArgEvent } from "../emitter/MultiArgEmitter";
+import { WeakMultiArgEmitter, WeakMultiArgEvent } from "../emitter/WeakMultiArgEmitter";
+import { IDisposable } from "../IDisposable";
+import { DependencyState, IDependency } from "./IDependency";
+
+// The goal of this implementation of the very common idea of a dependency container is to be
+// simple and do nothing that makes one stop and think "hun, that's clever. and weird".
+// Hence, using plain ole' strings for keys.
+
+export const IDependencyContainerSymbol: unique symbol = Symbol.for("eigenutils.IDependencyContainer");
+
+export enum DependencyContainerState { Uninitialized, Initializing, Initialized };
+
+export interface IDependencyContainer extends IDisposable {
+    [IDependencyContainerSymbol]: true;
+
+    readonly dependencyContainerState: DependencyContainerState;
+    readonly dependencyContainerStateChanged: MultiArgEvent<[IDependencyContainer, DependencyContainerState]>;
+    readonly weakDependencyContainerStateChanged: WeakMultiArgEvent<[IDependencyContainer, DependencyContainerState]>;
+
+    getInitializedPromise(): Promise<void>;
+
+    addDependency(key: string, dependency: IDependency): void;
+    readonly dependencyAdded: MultiArgEvent<[IDependencyContainer, string]>;
+    readonly weakDependencyAdded: WeakMultiArgEvent<[IDependencyContainer, string]>;
+
+    removeDependency(key: string): void;
+    readonly dependencyRemoved: MultiArgEvent<[IDependencyContainer, string]>;
+    readonly weakDependencyRemoved: WeakMultiArgEvent<[IDependencyContainer, string]>;
+
+    get(key: string): IDependency;
+    getTyped<T extends IDependency>(key: string): T;
+}
+
+export function isIDependencyContainer(input: any): input is IDependencyContainer {
+    if (input === null || input === undefined) {
+        return false;
+    }
+    return input[IDependencyContainerSymbol] === true;
+}
+
+interface IDependencyWrapper {
+    dependency: IDependency;
+    stateChangedToken: IDisposable;
+}
+
+export class BaseDependencyContainer implements IDependencyContainer {
+    public readonly [IDependencyContainerSymbol] = true;
+
+    protected _dependencies: Map<string, IDependencyWrapper> = new Map<string, IDependencyWrapper>();
+
+    protected _dependencyContainerState: DependencyContainerState = DependencyContainerState.Uninitialized;
+    public get dependencyContainerState(): DependencyContainerState {
+        return this._dependencyContainerState;
+    }
+
+    protected updateState(): void {
+        let newState: DependencyContainerState = DependencyContainerState.Initialized;
+        this._dependencies.forEach((d: IDependencyWrapper) => {
+            switch (newState) {
+                case DependencyContainerState.Initialized:
+                    if (d.dependency.dependencyState === DependencyState.Initializing) {
+                        newState = DependencyContainerState.Initializing;
+                    }
+                    else if (d.dependency.dependencyState === DependencyState.Uninitialized) {
+                        newState = DependencyContainerState.Uninitialized;
+                    }
+                    break;
+                case DependencyContainerState.Initializing:
+                    if (d.dependency.dependencyState === DependencyState.Uninitialized) {
+                        newState = DependencyContainerState.Uninitialized;
+                    }
+                    break;
+            }
+        });
+        if (newState !== this._dependencyContainerState) {
+            this._dependencyContainerState = newState;
+            this._dependencyContainerStateChangedEmitter?.fire(this, this._dependencyContainerState);
+            this._weakDependencyContainerStateChangedEmitter?.fire(this, this._dependencyContainerState);
+
+            if (newState === DependencyContainerState.Initialized && this._initializedPromise !== null && this._initializedPromiseResolve !== null) {
+                const resolve: () => void = this._initializedPromiseResolve;
+                this._initializedPromiseResolve = null;
+                this._initializedPromiseReject = null;
+                this._initializedPromise = null;
+                resolve();
+            }
+        }
+    }
+
+    protected _dependencyContainerStateChangedEmitter: MultiArgEmitter<[IDependencyContainer, DependencyContainerState]> | null = null;
+    public get dependencyContainerStateChanged(): MultiArgEvent<[IDependencyContainer, DependencyContainerState]> {
+        if (this._dependencyContainerStateChangedEmitter === null) {
+            this._dependencyContainerStateChangedEmitter = new MultiArgEmitter<[IDependencyContainer, DependencyContainerState]>();
+        }
+        return this._dependencyContainerStateChangedEmitter.event;
+    }
+
+    protected _weakDependencyContainerStateChangedEmitter: WeakMultiArgEmitter<[IDependencyContainer, DependencyContainerState]> | null = null;
+    public get weakDependencyContainerStateChanged(): WeakMultiArgEvent<[IDependencyContainer, DependencyContainerState]> {
+        if (this._weakDependencyContainerStateChangedEmitter === null) {
+            this._weakDependencyContainerStateChangedEmitter = new WeakMultiArgEmitter<[IDependencyContainer, DependencyContainerState]>();
+        }
+        return this._weakDependencyContainerStateChangedEmitter.event;
+    }
+
+    protected _initializedPromiseResolve: (() => void) | null = null;
+    protected _initializedPromiseReject: ((reason?: any) => void) | null = null;
+    protected _initializedPromise: Promise<void> | null = null;
+    public getInitializedPromise(): Promise<void> {
+        if (this._initializedPromise !== null) {
+            return this._initializedPromise;
+        }
+        if (this.dependencyContainerState === DependencyContainerState.Initialized) {
+            return Promise.resolve();
+        }
+        this._initializedPromise = new Promise<void>((resolve: () => void, reject: (reason?: any) => void) => {
+            this._initializedPromiseResolve = resolve;
+            this._initializedPromiseReject = reject;
+        });
+        return this._initializedPromise;
+    }
+
+    public addDependency(key: string, dependency: IDependency): void {
+        if (this._dependencies.has(key)) {
+            throw new Error(`Key ${key} already exists in the container`);
+        }
+        const stateChangedToken: IDisposable = dependency.dependencyStateChanged(this.onDependencyStateChanged);
+        this._dependencies.set(key, { dependency, stateChangedToken });
+        this.updateState();
+
+        this._dependencyAddedEmitter?.fire(this, key);
+        this._weakDependencyAddedEmitter?.fire(this, key);
+    }
+
+    protected onDependencyStateChanged(_source: IDependency, _state: DependencyState) {
+        this.updateState();
+    }
+
+    protected _dependencyAddedEmitter: MultiArgEmitter<[IDependencyContainer, string]> | null = null;
+    public get dependencyAdded(): MultiArgEvent<[IDependencyContainer, string]> {
+        if (this._dependencyAddedEmitter === null) {
+            this._dependencyAddedEmitter = new MultiArgEmitter<[IDependencyContainer, string]>();
+        }
+        return this._dependencyAddedEmitter.event;
+    }
+
+    protected _weakDependencyAddedEmitter: WeakMultiArgEmitter<[IDependencyContainer, string]> | null = null;
+    public get weakDependencyAdded(): WeakMultiArgEvent<[IDependencyContainer, string]> {
+        if (this._weakDependencyAddedEmitter === null) {
+            this._weakDependencyAddedEmitter = new WeakMultiArgEmitter<[IDependencyContainer, string]>();
+        }
+        return this._weakDependencyAddedEmitter.event;
+    }
+
+    public removeDependency(key: string): void {
+        if (!this._dependencies.has(key)) {
+            throw new Error(`Key ${key} does not exist in container`);
+        }
+        const oldDependency: IDependencyWrapper | undefined = this._dependencies.get(key);
+        if (oldDependency === undefined) {
+            throw new Error(`Key ${key} in container had value undefined`);
+        }
+        this._dependencies.delete(key);
+        oldDependency.stateChangedToken[Symbol.dispose]();
+        this.updateState();
+
+        this._dependencyRemovedEmitter?.fire(this, key);
+        this._weakDependencyRemovedEmitter?.fire(this, key);
+    }
+
+    protected _dependencyRemovedEmitter: MultiArgEmitter<[IDependencyContainer, string]> | null = null;
+    public get dependencyRemoved(): MultiArgEvent<[IDependencyContainer, string]> {
+        if (this._dependencyRemovedEmitter === null) {
+            this._dependencyRemovedEmitter = new MultiArgEmitter<[IDependencyContainer, string]>();
+        }
+        return this._dependencyRemovedEmitter.event;
+    }
+
+    protected _weakDependencyRemovedEmitter: WeakMultiArgEmitter<[IDependencyContainer, string]> | null = null;
+    public get weakDependencyRemoved(): WeakMultiArgEvent<[IDependencyContainer, string]> {
+        if (this._weakDependencyRemovedEmitter === null) {
+            this._weakDependencyRemovedEmitter = new WeakMultiArgEmitter<[IDependencyContainer, string]>();
+        }
+        return this._weakDependencyRemovedEmitter.event;
+    }
+
+    public get(key: string): IDependency {
+        if (!this._dependencies.has(key)) {
+            throw new Error(`Key ${key} does not exist in container`);
+        }
+        const wrapper: IDependencyWrapper | undefined = this._dependencies.get(key);
+        if (wrapper === undefined) {
+            throw new Error(`Key ${key} in container had value undefined`);
+        }
+        return wrapper.dependency;
+    }
+
+    public getTyped<T extends IDependency>(key: string): T {
+        if (!this._dependencies.has(key)) {
+            throw new Error(`Key ${key} does not exist in container`);
+        }
+        const wrapper: IDependencyWrapper | undefined = this._dependencies.get(key);
+        if (wrapper === undefined) {
+            throw new Error(`Key ${key} in container had value undefined`);
+        }
+        return wrapper.dependency as T;
+    }
+
+    public [Symbol.dispose](): void {
+        this._dependencyContainerStateChangedEmitter?.[Symbol.dispose]();
+        this._weakDependencyContainerStateChangedEmitter?.[Symbol.dispose]();
+        this._dependencyAddedEmitter?.[Symbol.dispose]();
+        this._weakDependencyAddedEmitter?.[Symbol.dispose]();
+        this._dependencyRemovedEmitter?.[Symbol.dispose]();
+        this._weakDependencyRemovedEmitter?.[Symbol.dispose]();
+        // TODO
+    }
+
+    public toString(): string {
+        return `BaseDependencyContainer(${this._dependencyContainerState, this._dependencies.size})`;
+    }
+}

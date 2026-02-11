@@ -1,0 +1,40 @@
+{
+    "operationSettings": [
+        {
+            "operationName": "_phase:build",
+            "outputFolderNames": [
+                "obj",
+                "obj-commonjs",
+                "bin",
+                "temp"
+            ]
+        },
+        {
+            "operationName": "build",
+            "outputFolderNames": [
+                "obj",
+                "obj-commonjs",
+                "bin",
+                "temp"
+            ]
+        },
+        {
+            "operationName": "_phase:test",
+            "outputFolderNames": [
+                "obj",
+                "obj-commonjs",
+                "bin",
+                "temp"
+            ]
+        },
+        {
+            "operationName": "test",
+            "outputFolderNames": [
+                "obj",
+                "obj-commonjs",
+                "bin",
+                "temp"
+            ]
+        }
+    ]
+}

@@ -1,0 +1,16 @@
+{
+    "extends": "./node_modules/ts-rig/profiles/library/tsconfig-base.json",
+    "include": [
+        "src/**/*.ts", "src/**/*.test.ts"
+    ],
+    "exclude": [
+        "node_modules",
+        "obj",
+        "obj-commonjs",
+        "bin"
+    ],
+    "compilerOptions": {
+        "outDir": "obj",
+        "rootDir": "src"
+    }
+}

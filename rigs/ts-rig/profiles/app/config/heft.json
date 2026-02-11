@@ -1,0 +1,78 @@
+{
+    "$schema": "https://developer.microsoft.com/json-schemas/heft/v0/heft.schema.json",
+    "aliasesByName": {
+        "start": {
+            "actionName": "build-watch",
+            "defaultParameters": [
+                "--serve"
+            ]
+        }
+    },
+    "phasesByName": {
+        "build": {
+            "cleanFiles": [
+                {
+                    "includeGlobs": [
+                        "obj",
+                        "obj-commonjs",
+                        "bin"
+                    ]
+                }
+            ],
+            "tasksByName": {
+                "typescript": {
+                    "taskPlugin": {
+                        "pluginPackage": "@rushstack/heft-typescript-plugin"
+                    }
+                },
+                "webpack": {
+                    "taskDependencies": [
+                        "typescript"
+                    ],
+                    "taskPlugin": {
+                        "pluginPackage": "@rushstack/heft-webpack5-plugin"
+                    }
+                },
+                "post-compile-copy": {
+                    "taskDependencies": [
+                        "webpack"
+                    ],
+                    "taskPlugin": {
+                        "pluginName": "copy-files-plugin",
+                        "pluginPackage": "@rushstack/heft",
+                        "options": {
+                            "copyOperations": [
+                                {
+                                    "sourcePath": "assets",
+                                    "destinationFolders": [
+                                        "bin"
+                                    ],
+                                    "fileExtensions": [
+                                        ".css",
+                                        ".ico",
+                                        ".svg",
+                                        ".png",
+                                        ".jpg",
+                                        ".jpeg"
+                                    ]
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "test": {
+            "phaseDependencies": [
+                "build"
+            ],
+            "tasksByName": {
+                "jest": {
+                    "taskPlugin": {
+                        "pluginPackage": "@rushstack/heft-jest-plugin"
+                    }
+                }
+            }
+        }
+    }
+}

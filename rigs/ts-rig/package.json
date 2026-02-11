@@ -1,0 +1,32 @@
+{
+    "name": "ts-rig",
+    "description": "Rig for typescript app and library packages",
+    "version": "0.0.1",
+    "private": true,
+    "scripts": {
+        "build": "",
+        "build:production": "",
+        "_phase:build": "",
+        "_phase:test": ""
+    },
+    "peerDependencies": {
+        "@rushstack/heft": "~1.1.1"
+    },
+    "dependencies": {
+        "html-webpack-plugin": "^5.6.4",
+        "source-map-loader": "^5.0.0",
+        "typescript": "^5.9.3",
+        "webpack": "^5.102.1",
+        "webpack-cli": "^6.0.1",
+        "webpack-dev-server": "^5.2.2",
+        "@rushstack/heft-typescript-plugin": "~1.1.6",
+        "@rushstack/heft-webpack5-plugin": "~1.2.6",
+        "@rushstack/heft-jest-plugin": "~1.1.6",
+        "@types/heft-jest": "1.0.6",
+        "css-loader": "~7.1.2",
+        "style-loader": "~4.0.0"
+    },
+    "devDependencies": {
+        "@rushstack/heft": "~1.1.6"
+    }
+}
