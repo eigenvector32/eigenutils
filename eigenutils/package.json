@@ -24,8 +24,7 @@
         "typescript": "^5.9.3"
     },
     "dependencies": {
-        "@rushstack/heft": "~1.1.7",
-        "tslib": "~2.8.1",
-        "@microsoft/fast-element": "~2.9.0"
+        "@rushstack/heft": "~1.1.14",
+        "tslib": "~2.8.1"
     }
 }
