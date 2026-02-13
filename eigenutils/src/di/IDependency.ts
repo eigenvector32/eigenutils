@@ -1,3 +1,6 @@
+// Copyright (c) 2026 Matthew Owen
+// Distributed under MIT license
+
 import { MultiArgEmitter, MultiArgEvent } from "../emitter/MultiArgEmitter";
 import { WeakMultiArgEmitter, WeakMultiArgEvent } from "../emitter/WeakMultiArgEmitter";
 import { IDisposable } from "../IDisposable";

@@ -1,3 +1,6 @@
+// Copyright (c) 2026 Matthew Owen
+// Distributed under MIT license
+
 import { IDependency, IDependencySymbol, DependencyState } from "./IDependency";
 import { IDataNodeWithProperties, BaseDataNodeWithProperties } from "../data/IDataProperty";
 import { MultiArgEmitter, MultiArgEvent } from "../emitter/MultiArgEmitter";

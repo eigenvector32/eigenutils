@@ -1,3 +1,6 @@
+// Copyright (c) 2026 Matthew Owen
+// Distributed under MIT license
+
 import { isDisposable } from "../IDisposable";
 import { IDataNode, BaseDataNode } from "./IDataNode";
 import { FireMode } from "../emitter/FireMode";

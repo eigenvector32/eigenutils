@@ -1,3 +1,6 @@
+// Copyright (c) 2026 Matthew Owen
+// Distributed under MIT license
+
 import { IDataNode, BaseDataNode } from "./IDataNode";
 import { IDataProperty, IDataPropertyParent, IDataPropertyParentSymbol } from "./IDataProperty";
 

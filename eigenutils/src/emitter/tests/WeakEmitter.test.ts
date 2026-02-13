@@ -1,3 +1,6 @@
+// Copyright (c) 2026 Matthew Owen
+// Distributed under MIT license
+
 import "../../tests/globalGC";
 import { waitForFinalize } from "../../tests/waitForFinalize"
 import { WeakEmitter } from "../WeakEmitter";

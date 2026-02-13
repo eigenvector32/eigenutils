@@ -1,3 +1,6 @@
+// Copyright (c) 2026 Matthew Owen
+// Distributed under MIT license
+
 import { ISRGB } from "./ISRGB";
 import { ISRGBNormalized } from "./ISRGBNormalized";
 import { clampChannel, denormalize } from "./normalize";

@@ -1,3 +1,6 @@
+// Copyright (c) 2026 Matthew Owen
+// Distributed under MIT license
+
 import { ISRGBNormalized, SRGBNormalized } from "./ISRGBNormalized";
 import { parseHexRGBToSRGBNormalized } from "./parseColor";
 import { ISRGBNormalizedToHex } from "./formatColor";

@@ -1,3 +1,6 @@
+// Copyright (c) 2026 Matthew Owen
+// Distributed under MIT license
+
 export const ISRGBSymbol: unique symbol = Symbol.for("eigenutils.color.ISRGB");
 
 // Valid RGB colors require channels in the range [0,255]. 

@@ -1,3 +1,6 @@
+// Copyright (c) 2026 Matthew Owen
+// Distributed under MIT license
+
 import { ISRGB, SRGB } from "./ISRGB";
 import { ISRGBNormalized, SRGBNormalized } from "./ISRGBNormalized";
 

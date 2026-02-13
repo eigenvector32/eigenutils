@@ -1,3 +1,6 @@
+// Copyright (c) 2026 Matthew Owen
+// Distributed under MIT license
+
 import { IDisposable } from "../IDisposable";
 import { FireMode } from "../emitter/FireMode";
 import { MultiArgEmitter, MultiArgEvent } from "../emitter/MultiArgEmitter";

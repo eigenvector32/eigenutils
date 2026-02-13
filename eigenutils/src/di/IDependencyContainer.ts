@@ -1,11 +1,14 @@
+// Copyright (c) 2026 Matthew Owen
+// Distributed under MIT license
+
 import { MultiArgEmitter, MultiArgEvent } from "../emitter/MultiArgEmitter";
 import { WeakMultiArgEmitter, WeakMultiArgEvent } from "../emitter/WeakMultiArgEmitter";
 import { IDisposable } from "../IDisposable";
 import { DependencyState, IDependency } from "./IDependency";
 
 // The goal of this implementation of the very common idea of a dependency container is to be
-// simple and do nothing that makes one stop and think "hun, that's clever. and weird".
-// Hence, using plain ole' strings for keys.
+// simple and do nothing that makes one stop and think "huh, that's clever. and weird".
+// EG: using the same name as both a key and a typename as in FAST. Hence, using plain ole' strings for keys.
 
 export const IDependencyContainerSymbol: unique symbol = Symbol.for("eigenutils.IDependencyContainer");
 

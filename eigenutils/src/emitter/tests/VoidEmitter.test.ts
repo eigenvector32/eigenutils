@@ -1,3 +1,6 @@
+// Copyright (c) 2026 Matthew Owen
+// Distributed under MIT license
+
 import { VoidEmitter } from "../VoidEmitter";
 import { FireMode } from "../FireMode";
 import { IDisposable } from "../../IDisposable";

@@ -1,3 +1,6 @@
+// Copyright (c) 2026 Matthew Owen
+// Distributed under MIT license
+
 import { BaseDataProperty, IDataPropertyParent } from "./IDataProperty";
 
 export class NumberDataProperty extends BaseDataProperty<number> {

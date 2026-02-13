@@ -6,5 +6,5 @@ As a side note, this could certainly be done better with a single template and p
 
 # Tests
 
-One thing of interest here is the unit testing of code using WeakRef. In order for these tests to work the instance of node running Jest needs to be launched with the --expose-gc argument. See the package.json for an example. 
+One thing of interest here is the unit testing of code using WeakRef. In order for these tests to work the instance of node running Jest needs to be launched with the --expose-gc argument. See the package.json for an example.
 These tests are potentially fragile if the internal workings of garbage collection in Node substantially change in the future. However, I am confident that this is the best solution that is currently possible to test this functionality at all. 

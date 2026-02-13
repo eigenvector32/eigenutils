@@ -1,4 +1,18 @@
+// Copyright (c) 2026 Matthew Owen
+// Distributed under MIT license
+
 import "./globalGC";
+
+// At first glance, using a global dictionary to store state for waitForFinalize seems inelegant. 
+// It seems like it should be possible to handle this via lambda captures of the Promise returned
+// from waitForFinalize. It actually turns out to be very tricky to do that without also capturing 
+// via a strong reference something which will prevent the FinalizationRegistry callback from ever 
+// firing. This implementation turns out to be much simpler. 
+// Note that it is obvious why IWaitForFinalizeState include the FinalizationRegistry (otherwise 
+// that would go out of scope before the callback is fired) but there is also something very strange
+// going on here. It seems like resolver should be kept alive by being captured in 
+// waiter:Promise<void>. But I found that if both registry and resolver are not independantly
+// referenced as in this code then the FinalizationRegistry callback is never called.
 
 interface IWaitForFinalizeState {
     targetRegistryId: symbol,

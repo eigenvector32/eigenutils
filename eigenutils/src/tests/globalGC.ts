@@ -1,3 +1,6 @@
+// Copyright (c) 2026 Matthew Owen
+// Distributed under MIT license
+
 export { };
 
 // If the --expose-gc flag is passed to node then this function is available at the global scope

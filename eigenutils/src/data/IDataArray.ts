@@ -1,3 +1,6 @@
+// Copyright (c) 2026 Matthew Owen
+// Distributed under MIT license
+
 import { isDisposable } from "../IDisposable";
 import { IDataNode, BaseDataNode } from "./IDataNode";
 import { IDataProperty, IDataPropertyParent, IDataPropertyParentSymbol } from "./IDataProperty";
@@ -620,6 +623,8 @@ export class BaseDataArray<T> extends BaseDataNode implements IDataArray<T> {
         }
         this._data = new Array<T>();
     }
+
+    // TODO very much under construction
 
     public readonly [IDataPropertyParentSymbol] = true;
     public readonly [IReadonlyDataArraySymbol] = true;
