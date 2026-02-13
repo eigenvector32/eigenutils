@@ -25,7 +25,7 @@ jobs:
         run: npm install -g @microsoft/rush
 
       - name: Install dependencies
-        run: rush install --no-link
+        run: rush install
 
       - name: Build
         run: rush build
