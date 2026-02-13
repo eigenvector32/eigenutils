@@ -1,0 +1,31 @@
+name: Build eigenutils package
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "**"
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          registry-url: "https://registry.npmjs.org"
+
+      - name: Install Rush
+        run: npm install -g @microsoft/rush
+
+      - name: Install dependencies
+        run: rush install --no-link
+
+      - name: Build
+        run: rush build
