@@ -128,7 +128,7 @@ export class BaseDependencyContainer implements IDependencyContainer {
         if (this._dependencies.has(key)) {
             throw new Error(`Key ${key} already exists in the container`);
         }
-        const stateChangedToken: IDisposable = dependency.dependencyStateChanged(this.onDependencyStateChanged);
+        const stateChangedToken: IDisposable = dependency.dependencyStateChanged(this.onDependencyStateChanged, this);
         this._dependencies.set(key, { dependency, stateChangedToken });
         this.updateState();
 
@@ -136,7 +136,7 @@ export class BaseDependencyContainer implements IDependencyContainer {
         this._weakDependencyAddedEmitter?.fire(this, key);
     }
 
-    protected onDependencyStateChanged(_source: IDependency, _state: DependencyState) {
+    protected onDependencyStateChanged(_source: IDependency, _state: DependencyState): void {
         this.updateState();
     }
 
@@ -217,7 +217,6 @@ export class BaseDependencyContainer implements IDependencyContainer {
         this._weakDependencyAddedEmitter?.[Symbol.dispose]();
         this._dependencyRemovedEmitter?.[Symbol.dispose]();
         this._weakDependencyRemovedEmitter?.[Symbol.dispose]();
-        // TODO
     }
 
     public toString(): string {
