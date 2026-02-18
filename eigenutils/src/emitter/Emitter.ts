@@ -27,7 +27,7 @@ export class Emitter<T> implements IDisposable {
   private _listeners: IListener<T>[] = [];
   public get listenerCount(): number {
     if (this._isDisposed) {
-      throw new Error("Emitter.listenerCount called after dispose");
+      throw new Error("Emitter.getlistenerCount called after dispose");
     }
     return this._listeners.length;
   }
