@@ -4,8 +4,7 @@
 import { isDisposable } from "../IDisposable";
 import { IDataNode, BaseDataNode } from "./IDataNode";
 import { FireMode } from "../emitter/FireMode";
-import { MultiArgEmitter, MultiArgEvent } from "../emitter/MultiArgEmitter";
-import { WeakMultiArgEmitter, WeakMultiArgEvent } from "../emitter/WeakMultiArgEmitter";
+import { DualMultiArgEmitter, DualMultiArgEvent } from "../emitter/DualMultiArgEmitter";
 
 export const IDataPropertyParentSymbol: unique symbol = Symbol.for("eigenutils.IDataPropertyParentSymbol");
 
@@ -35,8 +34,7 @@ export interface IReadonlyDataProperty<T> extends IDataNode {
     readonly parent: IDataPropertyParent | null;
     readonly value: T;
     readonly isValid: boolean;
-    readonly isValidChanged: MultiArgEvent<[IDataProperty<T>, boolean]>;
-    readonly weakIsValidChanged: WeakMultiArgEvent<[IDataProperty<T>, boolean]>;
+    readonly isValidChanged: DualMultiArgEvent<[IDataProperty<T>, boolean]>;
 }
 
 
@@ -54,8 +52,7 @@ export interface IDataProperty<T> extends IReadonlyDataProperty<T> {
     readonly parent: IDataPropertyParent | null;
     value: T;
     readonly isValid: boolean;
-    readonly isValidChanged: MultiArgEvent<[IDataProperty<T>, boolean]>;
-    readonly weakIsValidChanged: WeakMultiArgEvent<[IDataProperty<T>, boolean]>;
+    readonly isValidChanged: DualMultiArgEvent<[IDataProperty<T>, boolean]>;
 }
 
 export class BaseDataProperty<T> extends BaseDataNode implements IDataProperty<T> {
@@ -104,9 +101,6 @@ export class BaseDataProperty<T> extends BaseDataNode implements IDataProperty<T
             if (this._isValidChangedEmitter) {
                 this._isValidChangedEmitter.fireMode = this._fireMode;
             }
-            if (this._weakIsValidChangedEmitter) {
-                this._weakIsValidChangedEmitter.fireMode = this._fireMode;
-            }
         }
     }
 
@@ -130,7 +124,6 @@ export class BaseDataProperty<T> extends BaseDataNode implements IDataProperty<T
             this.valueChangedSideEffect?.call(this);
             this.validate(true);
             this._dataChangedEmitter?.fire(this, this._nodeName, this._index, [this]);
-            this._weakDataChangedEmitter?.fire(this, this._nodeName, this._index, [this]);
             const parentRef: IDataPropertyParent | undefined | null = this._parent?.deref();
             if (parentRef) {
                 parentRef.onChildPropertyChanged(this, this._nodeName, this._index, [this]);
@@ -144,7 +137,6 @@ export class BaseDataProperty<T> extends BaseDataNode implements IDataProperty<T
         if (notify && (oldVal !== this._isValid)) {
             this.isValidChangedSideEffect?.call(this);
             this._isValidChangedEmitter?.fire(this, this._isValid);
-            this._weakIsValidChangedEmitter?.fire(this, this._isValid);
         }
     }
 
@@ -153,20 +145,12 @@ export class BaseDataProperty<T> extends BaseDataNode implements IDataProperty<T
         return this._isValid;
     }
 
-    protected _isValidChangedEmitter: MultiArgEmitter<[IDataProperty<T>, boolean]> | null = null;
-    public get isValidChanged(): MultiArgEvent<[IDataProperty<T>, boolean]> {
+    protected _isValidChangedEmitter: DualMultiArgEmitter<[IDataProperty<T>, boolean]> | null = null;
+    public get isValidChanged(): DualMultiArgEvent<[IDataProperty<T>, boolean]> {
         if (this._isValidChangedEmitter === null) {
-            this._isValidChangedEmitter = new MultiArgEmitter<[IDataProperty<T>, boolean]>(this._fireMode);
+            this._isValidChangedEmitter = new DualMultiArgEmitter<[IDataProperty<T>, boolean]>(this._fireMode);
         }
         return this._isValidChangedEmitter.event;
-    }
-
-    protected _weakIsValidChangedEmitter: WeakMultiArgEmitter<[IDataProperty<T>, boolean]> | null = null;
-    public get weakIsValidChanged(): WeakMultiArgEvent<[IDataProperty<T>, boolean]> {
-        if (this._weakIsValidChangedEmitter === null) {
-            this._weakIsValidChangedEmitter = new WeakMultiArgEmitter<[IDataProperty<T>, boolean]>(this._fireMode);
-        }
-        return this._weakIsValidChangedEmitter.event;
     }
 
     public override[Symbol.dispose](): void {
@@ -174,7 +158,6 @@ export class BaseDataProperty<T> extends BaseDataNode implements IDataProperty<T
             this._value[Symbol.dispose]();
         }
         this._isValidChangedEmitter?.[Symbol.dispose]();
-        this._weakIsValidChangedEmitter?.[Symbol.dispose]();
         this._parent = null;
         super[Symbol.dispose]();
     }
@@ -231,7 +214,6 @@ export class BaseDataNodeWithProperties extends BaseDataNode implements IDataNod
         this.childPropertyChangedSideEffect?.call(this, source, propertyName, index, path);
 
         this._dataChangedEmitter?.fire(source, propertyName, index, path);
-        this._weakDataChangedEmitter?.fire(source, propertyName, index, path);
     }
 
     protected childPropertyChangedSideEffect: ((_source: IDataProperty<unknown> | null, _propertyName: string | null, _index: number | null, _path: IDataNode[]) => void) | null = null;

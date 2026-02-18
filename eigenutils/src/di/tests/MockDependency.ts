@@ -11,7 +11,6 @@ export class MockDependency extends BaseDependency {
         if (state !== this._dependencyState) {
             this._dependencyState = state;
             this._dependencyStateChangedEmitter?.fire(this, this._dependencyState);
-            this._weakDependencyStateChangedEmitter?.fire(this, this._dependencyState);
         }
     }
 

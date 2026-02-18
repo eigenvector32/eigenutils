@@ -1,8 +1,7 @@
 // Copyright (c) 2026 Matthew Owen
 // Distributed under MIT license
 
-import { MultiArgEmitter, MultiArgEvent } from "../emitter/MultiArgEmitter";
-import { WeakMultiArgEmitter, WeakMultiArgEvent } from "../emitter/WeakMultiArgEmitter";
+import { DualMultiArgEmitter, DualMultiArgEvent } from "../emitter/DualMultiArgEmitter";
 import { IDisposable } from "../IDisposable";
 import { DependencyState, IDependency } from "./IDependency";
 
@@ -18,18 +17,15 @@ export interface IDependencyContainer extends IDisposable {
     [IDependencyContainerSymbol]: true;
 
     readonly dependencyContainerState: DependencyContainerState;
-    readonly dependencyContainerStateChanged: MultiArgEvent<[IDependencyContainer, DependencyContainerState]>;
-    readonly weakDependencyContainerStateChanged: WeakMultiArgEvent<[IDependencyContainer, DependencyContainerState]>;
+    readonly dependencyContainerStateChanged: DualMultiArgEvent<[IDependencyContainer, DependencyContainerState]>;
 
     getInitializedPromise(): Promise<void>;
 
     addDependency(key: string, dependency: IDependency): void;
-    readonly dependencyAdded: MultiArgEvent<[IDependencyContainer, string]>;
-    readonly weakDependencyAdded: WeakMultiArgEvent<[IDependencyContainer, string]>;
+    readonly dependencyAdded: DualMultiArgEvent<[IDependencyContainer, string]>;
 
     removeDependency(key: string): void;
-    readonly dependencyRemoved: MultiArgEvent<[IDependencyContainer, string]>;
-    readonly weakDependencyRemoved: WeakMultiArgEvent<[IDependencyContainer, string]>;
+    readonly dependencyRemoved: DualMultiArgEvent<[IDependencyContainer, string]>;
 
     get(key: string): IDependency;
     getTyped<T extends IDependency>(key: string): T;
@@ -79,7 +75,6 @@ export class BaseDependencyContainer implements IDependencyContainer {
         if (newState !== this._dependencyContainerState) {
             this._dependencyContainerState = newState;
             this._dependencyContainerStateChangedEmitter?.fire(this, this._dependencyContainerState);
-            this._weakDependencyContainerStateChangedEmitter?.fire(this, this._dependencyContainerState);
 
             if (newState === DependencyContainerState.Initialized && this._initializedPromise !== null && this._initializedPromiseResolve !== null) {
                 const resolve: () => void = this._initializedPromiseResolve;
@@ -91,20 +86,12 @@ export class BaseDependencyContainer implements IDependencyContainer {
         }
     }
 
-    protected _dependencyContainerStateChangedEmitter: MultiArgEmitter<[IDependencyContainer, DependencyContainerState]> | null = null;
-    public get dependencyContainerStateChanged(): MultiArgEvent<[IDependencyContainer, DependencyContainerState]> {
+    protected _dependencyContainerStateChangedEmitter: DualMultiArgEmitter<[IDependencyContainer, DependencyContainerState]> | null = null;
+    public get dependencyContainerStateChanged(): DualMultiArgEvent<[IDependencyContainer, DependencyContainerState]> {
         if (this._dependencyContainerStateChangedEmitter === null) {
-            this._dependencyContainerStateChangedEmitter = new MultiArgEmitter<[IDependencyContainer, DependencyContainerState]>();
+            this._dependencyContainerStateChangedEmitter = new DualMultiArgEmitter<[IDependencyContainer, DependencyContainerState]>();
         }
         return this._dependencyContainerStateChangedEmitter.event;
-    }
-
-    protected _weakDependencyContainerStateChangedEmitter: WeakMultiArgEmitter<[IDependencyContainer, DependencyContainerState]> | null = null;
-    public get weakDependencyContainerStateChanged(): WeakMultiArgEvent<[IDependencyContainer, DependencyContainerState]> {
-        if (this._weakDependencyContainerStateChangedEmitter === null) {
-            this._weakDependencyContainerStateChangedEmitter = new WeakMultiArgEmitter<[IDependencyContainer, DependencyContainerState]>();
-        }
-        return this._weakDependencyContainerStateChangedEmitter.event;
     }
 
     protected _initializedPromiseResolve: (() => void) | null = null;
@@ -133,27 +120,18 @@ export class BaseDependencyContainer implements IDependencyContainer {
         this.updateState();
 
         this._dependencyAddedEmitter?.fire(this, key);
-        this._weakDependencyAddedEmitter?.fire(this, key);
     }
 
     protected onDependencyStateChanged(_source: IDependency, _state: DependencyState): void {
         this.updateState();
     }
 
-    protected _dependencyAddedEmitter: MultiArgEmitter<[IDependencyContainer, string]> | null = null;
-    public get dependencyAdded(): MultiArgEvent<[IDependencyContainer, string]> {
+    protected _dependencyAddedEmitter: DualMultiArgEmitter<[IDependencyContainer, string]> | null = null;
+    public get dependencyAdded(): DualMultiArgEvent<[IDependencyContainer, string]> {
         if (this._dependencyAddedEmitter === null) {
-            this._dependencyAddedEmitter = new MultiArgEmitter<[IDependencyContainer, string]>();
+            this._dependencyAddedEmitter = new DualMultiArgEmitter<[IDependencyContainer, string]>();
         }
         return this._dependencyAddedEmitter.event;
-    }
-
-    protected _weakDependencyAddedEmitter: WeakMultiArgEmitter<[IDependencyContainer, string]> | null = null;
-    public get weakDependencyAdded(): WeakMultiArgEvent<[IDependencyContainer, string]> {
-        if (this._weakDependencyAddedEmitter === null) {
-            this._weakDependencyAddedEmitter = new WeakMultiArgEmitter<[IDependencyContainer, string]>();
-        }
-        return this._weakDependencyAddedEmitter.event;
     }
 
     public removeDependency(key: string): void {
@@ -169,23 +147,14 @@ export class BaseDependencyContainer implements IDependencyContainer {
         this.updateState();
 
         this._dependencyRemovedEmitter?.fire(this, key);
-        this._weakDependencyRemovedEmitter?.fire(this, key);
     }
 
-    protected _dependencyRemovedEmitter: MultiArgEmitter<[IDependencyContainer, string]> | null = null;
-    public get dependencyRemoved(): MultiArgEvent<[IDependencyContainer, string]> {
+    protected _dependencyRemovedEmitter: DualMultiArgEmitter<[IDependencyContainer, string]> | null = null;
+    public get dependencyRemoved(): DualMultiArgEvent<[IDependencyContainer, string]> {
         if (this._dependencyRemovedEmitter === null) {
-            this._dependencyRemovedEmitter = new MultiArgEmitter<[IDependencyContainer, string]>();
+            this._dependencyRemovedEmitter = new DualMultiArgEmitter<[IDependencyContainer, string]>();
         }
         return this._dependencyRemovedEmitter.event;
-    }
-
-    protected _weakDependencyRemovedEmitter: WeakMultiArgEmitter<[IDependencyContainer, string]> | null = null;
-    public get weakDependencyRemoved(): WeakMultiArgEvent<[IDependencyContainer, string]> {
-        if (this._weakDependencyRemovedEmitter === null) {
-            this._weakDependencyRemovedEmitter = new WeakMultiArgEmitter<[IDependencyContainer, string]>();
-        }
-        return this._weakDependencyRemovedEmitter.event;
     }
 
     public get(key: string): IDependency {
@@ -212,11 +181,8 @@ export class BaseDependencyContainer implements IDependencyContainer {
 
     public [Symbol.dispose](): void {
         this._dependencyContainerStateChangedEmitter?.[Symbol.dispose]();
-        this._weakDependencyContainerStateChangedEmitter?.[Symbol.dispose]();
         this._dependencyAddedEmitter?.[Symbol.dispose]();
-        this._weakDependencyAddedEmitter?.[Symbol.dispose]();
         this._dependencyRemovedEmitter?.[Symbol.dispose]();
-        this._weakDependencyRemovedEmitter?.[Symbol.dispose]();
     }
 
     public toString(): string {

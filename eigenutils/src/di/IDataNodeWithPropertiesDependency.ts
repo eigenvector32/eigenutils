@@ -3,8 +3,7 @@
 
 import { IDependency, IDependencySymbol, DependencyState } from "./IDependency";
 import { IDataNodeWithProperties, BaseDataNodeWithProperties } from "../data/IDataProperty";
-import { MultiArgEmitter, MultiArgEvent } from "../emitter/MultiArgEmitter";
-import { WeakMultiArgEmitter, WeakMultiArgEvent } from "../emitter/WeakMultiArgEmitter";
+import { DualMultiArgEmitter, DualMultiArgEvent } from "../emitter/DualMultiArgEmitter";
 
 export const IDataNodeWithPropertiesDependencySymbol: unique symbol = Symbol.for("eigenutils.IDataNodeWithPropertiesDependency");
 
@@ -28,26 +27,17 @@ export class BaseDataNodeWithPropertiesDependency extends BaseDataNodeWithProper
         return this._dependencyState;
     }
 
-    protected _dependencyStateChangedEmitter: MultiArgEmitter<[IDependency, DependencyState]> | null = null;
-    public get dependencyStateChanged(): MultiArgEvent<[IDependency, DependencyState]> {
+    protected _dependencyStateChangedEmitter: DualMultiArgEmitter<[IDependency, DependencyState]> | null = null;
+    public get dependencyStateChanged(): DualMultiArgEvent<[IDependency, DependencyState]> {
         if (this._dependencyStateChangedEmitter === null) {
-            this._dependencyStateChangedEmitter = new MultiArgEmitter<[IDependency, DependencyState]>()
+            this._dependencyStateChangedEmitter = new DualMultiArgEmitter<[IDependency, DependencyState]>()
         }
         return this._dependencyStateChangedEmitter.event;
-    }
-
-    protected _weakDependencyStateChangedEmitter: WeakMultiArgEmitter<[IDependency, DependencyState]> | null = null;
-    public get weakDependencyStateChanged(): WeakMultiArgEvent<[IDependency, DependencyState]> {
-        if (this._weakDependencyStateChangedEmitter === null) {
-            this._weakDependencyStateChangedEmitter = new WeakMultiArgEmitter<[IDependency, DependencyState]>()
-        }
-        return this._weakDependencyStateChangedEmitter.event;
     }
 
     public override[Symbol.dispose](): void {
         super[Symbol.dispose]();
         this._dependencyStateChangedEmitter?.[Symbol.dispose]();
-        this._weakDependencyStateChangedEmitter?.[Symbol.dispose]();
     }
 
     public override toString(): string {

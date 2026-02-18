@@ -81,7 +81,6 @@ export class BaseDirectedGraphDataNode extends BaseDataNode implements IDirected
         this.childPropertyChangedSideEffect?.call(this, source, propertyName, index, path);
 
         this._dataChangedEmitter?.fire(source, propertyName, index, path);
-        this._weakDataChangedEmitter?.fire(source, propertyName, index, path);
 
         for (let i: number = 0; i < this._parents.length; i++) {
             const parentRef: IDataPropertyParent | undefined = this._parents[i].deref();

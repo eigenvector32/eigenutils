@@ -650,7 +650,6 @@ export class BaseDataArray<T> extends BaseDataNode implements IDataArray<T> {
         this.childPropertyChangedSideEffect(propertyName, index, path);
 
         this._dataChangedEmitter?.fire(source, propertyName, index, path);
-        this._weakDataChangedEmitter?.fire(source, propertyName, index, path);
 
         const parentRef: IDataPropertyParent | undefined | null = this._parent?.deref();
         if (parentRef) {

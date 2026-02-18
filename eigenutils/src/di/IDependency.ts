@@ -1,8 +1,7 @@
 // Copyright (c) 2026 Matthew Owen
 // Distributed under MIT license
 
-import { MultiArgEmitter, MultiArgEvent } from "../emitter/MultiArgEmitter";
-import { WeakMultiArgEmitter, WeakMultiArgEvent } from "../emitter/WeakMultiArgEmitter";
+import { DualMultiArgEmitter, DualMultiArgEvent } from "../emitter/DualMultiArgEmitter";
 import { IDisposable } from "../IDisposable";
 
 export const IDependencySymbol: unique symbol = Symbol.for("eigenutils.IDependency");
@@ -13,8 +12,7 @@ export interface IDependency extends IDisposable {
     [IDependencySymbol]: true;
 
     readonly dependencyState: DependencyState;
-    readonly dependencyStateChanged: MultiArgEvent<[IDependency, DependencyState]>;
-    readonly weakDependencyStateChanged: WeakMultiArgEvent<[IDependency, DependencyState]>;
+    readonly dependencyStateChanged: DualMultiArgEvent<[IDependency, DependencyState]>;
 }
 
 export function isIDependency(input: any): input is IDependency {
@@ -32,25 +30,16 @@ export class BaseDependency implements IDependency {
         return this._dependencyState;
     }
 
-    protected _dependencyStateChangedEmitter: MultiArgEmitter<[IDependency, DependencyState]> | null = null;
-    public get dependencyStateChanged(): MultiArgEvent<[IDependency, DependencyState]> {
+    protected _dependencyStateChangedEmitter: DualMultiArgEmitter<[IDependency, DependencyState]> | null = null;
+    public get dependencyStateChanged(): DualMultiArgEvent<[IDependency, DependencyState]> {
         if (this._dependencyStateChangedEmitter === null) {
-            this._dependencyStateChangedEmitter = new MultiArgEmitter<[IDependency, DependencyState]>()
+            this._dependencyStateChangedEmitter = new DualMultiArgEmitter<[IDependency, DependencyState]>()
         }
         return this._dependencyStateChangedEmitter.event;
     }
 
-    protected _weakDependencyStateChangedEmitter: WeakMultiArgEmitter<[IDependency, DependencyState]> | null = null;
-    public get weakDependencyStateChanged(): WeakMultiArgEvent<[IDependency, DependencyState]> {
-        if (this._weakDependencyStateChangedEmitter === null) {
-            this._weakDependencyStateChangedEmitter = new WeakMultiArgEmitter<[IDependency, DependencyState]>()
-        }
-        return this._weakDependencyStateChangedEmitter.event;
-    }
-
     public [Symbol.dispose](): void {
         this._dependencyStateChangedEmitter?.[Symbol.dispose]();
-        this._weakDependencyStateChangedEmitter?.[Symbol.dispose]();
     }
 
     public toString(): string {
