@@ -2,7 +2,7 @@
 // Distributed under MIT license
 
 import { DependencyState } from "../IDependency";
-import { BaseDependencyContainer, DependencyContainerState, isIDependencyContainer } from "../IDependencyContainer";
+import { BaseDependencyContainer, DependencyContainerState, IDependencyContainer, isIDependencyContainer } from "../IDependencyContainer";
 import { MockDependency } from "./MockDependency";
 
 describe('Tests for BaseDependencyContainer', () => {
@@ -66,5 +66,50 @@ describe('Tests for BaseDependencyContainer', () => {
         expect(container.dependencyContainerState).toBe(DependencyContainerState.Uninitialized);
         await container.getInitializedPromise();
         expect(container.dependencyContainerState).toBe(DependencyContainerState.Initialized);
+    });
+
+    test('dependencyAdded event', async () => {
+        const container: BaseDependencyContainer = new BaseDependencyContainer();
+        const mockKey: string = "test key";
+        const mock: MockDependency = new MockDependency(DependencyState.Uninitialized);
+        let called: boolean = false;
+        container.dependencyAdded((source: IDependencyContainer, key: string) => {
+            expect(called).toBe(false);
+            called = true;
+            expect(key).toBe(mockKey);
+            expect(source).toBe(container);
+        });
+        container.addDependency(mockKey, mock);
+        expect(called).toBe(true);
+    });
+
+    test('dependencyRemoved event', async () => {
+        const container: BaseDependencyContainer = new BaseDependencyContainer();
+        const mockKey: string = "test key";
+        const mock: MockDependency = new MockDependency(DependencyState.Uninitialized);
+        let called: boolean = false;
+        container.dependencyRemoved((source: IDependencyContainer, key: string) => {
+            expect(called).toBe(false);
+            called = true;
+            expect(key).toBe(mockKey);
+            expect(source).toBe(container);
+        });
+        container.addDependency(mockKey, mock);
+        container.removeDependency(mockKey);
+        expect(called).toBe(true);
+    });
+
+    test('get on a non-existant key throws an exception', () => {
+        const container: BaseDependencyContainer = new BaseDependencyContainer();
+        expect(() => {
+            container.get("test key");
+        }).toThrow();
+    });
+
+    test('getTyped on a non-existant key throws an exception', () => {
+        const container: BaseDependencyContainer = new BaseDependencyContainer();
+        expect(() => {
+            container.getTyped<MockDependency>("test key");
+        }).toThrow();
     });
 });

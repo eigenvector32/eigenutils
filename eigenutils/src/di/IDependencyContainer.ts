@@ -50,6 +50,9 @@ export class BaseDependencyContainer implements IDependencyContainer {
 
     protected _dependencyContainerState: DependencyContainerState = DependencyContainerState.Uninitialized;
     public get dependencyContainerState(): DependencyContainerState {
+        if (this._isDisposed) {
+            throw new Error("BaseDependencyContainer.getdependencyContainerState called after dispose");
+        }
         return this._dependencyContainerState;
     }
 
@@ -88,6 +91,9 @@ export class BaseDependencyContainer implements IDependencyContainer {
 
     protected _dependencyContainerStateChangedEmitter: DualMultiArgEmitter<[IDependencyContainer, DependencyContainerState]> | null = null;
     public get dependencyContainerStateChanged(): DualMultiArgEvent<[IDependencyContainer, DependencyContainerState]> {
+        if (this._isDisposed) {
+            throw new Error("BaseDependencyContainer.getdependencyContainerStateChanged called after dispose");
+        }
         if (this._dependencyContainerStateChangedEmitter === null) {
             this._dependencyContainerStateChangedEmitter = new DualMultiArgEmitter<[IDependencyContainer, DependencyContainerState]>();
         }
@@ -98,6 +104,9 @@ export class BaseDependencyContainer implements IDependencyContainer {
     protected _initializedPromiseReject: ((reason?: any) => void) | null = null;
     protected _initializedPromise: Promise<void> | null = null;
     public getInitializedPromise(): Promise<void> {
+        if (this._isDisposed) {
+            throw new Error("BaseDependencyContainer.getInitializedPromise called after dispose");
+        }
         if (this._initializedPromise !== null) {
             return this._initializedPromise;
         }
@@ -112,6 +121,9 @@ export class BaseDependencyContainer implements IDependencyContainer {
     }
 
     public addDependency(key: string, dependency: IDependency): void {
+        if (this._isDisposed) {
+            throw new Error("BaseDependencyContainer.addDependency called after dispose");
+        }
         if (this._dependencies.has(key)) {
             throw new Error(`Key ${key} already exists in the container`);
         }
@@ -128,6 +140,9 @@ export class BaseDependencyContainer implements IDependencyContainer {
 
     protected _dependencyAddedEmitter: DualMultiArgEmitter<[IDependencyContainer, string]> | null = null;
     public get dependencyAdded(): DualMultiArgEvent<[IDependencyContainer, string]> {
+        if (this._isDisposed) {
+            throw new Error("BaseDependencyContainer.getdependencyAdded called after dispose");
+        }
         if (this._dependencyAddedEmitter === null) {
             this._dependencyAddedEmitter = new DualMultiArgEmitter<[IDependencyContainer, string]>();
         }
@@ -135,6 +150,9 @@ export class BaseDependencyContainer implements IDependencyContainer {
     }
 
     public removeDependency(key: string): void {
+        if (this._isDisposed) {
+            throw new Error("BaseDependencyContainer.removeDependency called after dispose");
+        }
         if (!this._dependencies.has(key)) {
             throw new Error(`Key ${key} does not exist in container`);
         }
@@ -151,6 +169,9 @@ export class BaseDependencyContainer implements IDependencyContainer {
 
     protected _dependencyRemovedEmitter: DualMultiArgEmitter<[IDependencyContainer, string]> | null = null;
     public get dependencyRemoved(): DualMultiArgEvent<[IDependencyContainer, string]> {
+        if (this._isDisposed) {
+            throw new Error("BaseDependencyContainer.getdependencyRemoved called after dispose");
+        }
         if (this._dependencyRemovedEmitter === null) {
             this._dependencyRemovedEmitter = new DualMultiArgEmitter<[IDependencyContainer, string]>();
         }
@@ -158,6 +179,9 @@ export class BaseDependencyContainer implements IDependencyContainer {
     }
 
     public get(key: string): IDependency {
+        if (this._isDisposed) {
+            throw new Error("BaseDependencyContainer.get called after dispose");
+        }
         if (!this._dependencies.has(key)) {
             throw new Error(`Key ${key} does not exist in container`);
         }
@@ -169,6 +193,9 @@ export class BaseDependencyContainer implements IDependencyContainer {
     }
 
     public getTyped<T extends IDependency>(key: string): T {
+        if (this._isDisposed) {
+            throw new Error("BaseDependencyContainer.getTyped called after dispose");
+        }
         if (!this._dependencies.has(key)) {
             throw new Error(`Key ${key} does not exist in container`);
         }
@@ -179,10 +206,14 @@ export class BaseDependencyContainer implements IDependencyContainer {
         return wrapper.dependency as T;
     }
 
+    private _isDisposed: boolean = false;
     public [Symbol.dispose](): void {
-        this._dependencyContainerStateChangedEmitter?.[Symbol.dispose]();
-        this._dependencyAddedEmitter?.[Symbol.dispose]();
-        this._dependencyRemovedEmitter?.[Symbol.dispose]();
+        if (!this._isDisposed) {
+            this._dependencyContainerStateChangedEmitter?.[Symbol.dispose]();
+            this._dependencyAddedEmitter?.[Symbol.dispose]();
+            this._dependencyRemovedEmitter?.[Symbol.dispose]();
+            this._isDisposed = true;
+        }
     }
 
     public toString(): string {
