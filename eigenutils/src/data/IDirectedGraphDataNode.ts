@@ -42,6 +42,18 @@ export class BaseDirectedGraphDataNode extends BaseDataNode implements IDirected
         }
     }
 
+    public override toString(): string {
+        if (this._isDisposed) {
+            return "BaseDirectedGraphDataNode(disposed)";
+        }
+        if (this._index === null) {
+            return `BaseDirectedGraphDataNode(${this._nodeName})`;
+        }
+        else {
+            return `BaseDirectedGraphDataNode(${this._nodeName}[${this._index}])`;
+        }
+    }
+
     protected parentsGetSideEffect: (() => void) | null = null;
     protected childrenGetSideEffect: (() => void) | null = null;
     protected propertiesGetSideEffect: (() => void) | null = null;
@@ -91,24 +103,17 @@ export class BaseDirectedGraphDataNode extends BaseDataNode implements IDirected
     }
 
     public override[Symbol.dispose](): void {
-        for (let i: number = 0; i < this._children.length; i++) {
-            this._children[i][Symbol.dispose]();
+        if (!this._isDisposed) {
+            for (let i: number = 0; i < this._children.length; i++) {
+                this._children[i][Symbol.dispose]();
+            }
+            this._children = [];
+            this._properties.forEach((prop: IDataProperty<unknown>, _: string) => {
+                prop[Symbol.dispose]();
+            });
+            this._properties = new Map<string, IDataProperty<unknown>>();
+            this._parents = [];
         }
-        this._children = [];
-        this._properties.forEach((prop: IDataProperty<unknown>, _: string) => {
-            prop[Symbol.dispose]();
-        });
-        this._properties = new Map<string, IDataProperty<unknown>>();
-        this._parents = [];
         super[Symbol.dispose]();
-    }
-
-    public override toString(): string {
-        if (this._index === null) {
-            return `BaseDirectedGraphDataNode(${this._nodeName})`;
-        }
-        else {
-            return `BaseDirectedGraphDataNode(${this._nodeName}[${this._index}])`;
-        }
     }
 }

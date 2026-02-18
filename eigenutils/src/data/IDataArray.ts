@@ -624,6 +624,18 @@ export class BaseDataArray<T> extends BaseDataNode implements IDataArray<T> {
         this._data = new Array<T>();
     }
 
+    public override toString(): string {
+        if (this._isDisposed) {
+            return "BaseDataArray(disposed)";
+        }
+        if (this._index === null) {
+            return `BaseDataArray(${this._nodeName})`;
+        }
+        else {
+            return `BaseDataArray(${this._nodeName}[${this._index}])`;
+        }
+    }
+
     // TODO very much under construction
 
     public readonly [IDataPropertyParentSymbol] = true;
@@ -678,24 +690,17 @@ export class BaseDataArray<T> extends BaseDataNode implements IDataArray<T> {
     }
 
     public override[Symbol.dispose](): void {
-        for (let i: number = 0; i < this._data.length; i++) {
-            // Play nice with the type guard by aliasing a local variable
-            const d: T = this._data[i];
-            if (isDisposable(d)) {
-                d[Symbol.dispose]();
+        if (!this._isDisposed) {
+            for (let i: number = 0; i < this._data.length; i++) {
+                // Play nice with the type guard by aliasing a local variable
+                const d: T = this._data[i];
+                if (isDisposable(d)) {
+                    d[Symbol.dispose]();
+                }
             }
+            this._data = [];
+            this._parent = null;
         }
-        this._data = [];
-        this._parent = null;
         super[Symbol.dispose]();
-    }
-
-    public override toString(): string {
-        if (this._index === null) {
-            return `BaseDataArray(${this._nodeName})`;
-        }
-        else {
-            return `BaseDataArray(${this._nodeName}[${this._index}])`;
-        }
     }
 }

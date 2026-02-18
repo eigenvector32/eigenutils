@@ -13,6 +13,13 @@ export class DualMultiArgEmitter<T extends unknown[]> implements IDisposable {
         this._fireMode = fireMode;
     }
 
+    public toString(): string {
+        if (this._isDisposed) {
+            return "DualMultiArgEmitter(disposed)";
+        }
+        return `DualMultiArgEmitter(${this._strongEmitter?.listenerCount},${this._weakEmitter?.listenerCount})`;
+    }
+
     private _strongEmitter: MultiArgEmitter<T> | null = null;
     private _weakEmitter: WeakMultiArgEmitter<T> | null = null;
     private _event: DualMultiArgEvent<T> | null = null;

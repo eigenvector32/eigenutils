@@ -24,6 +24,13 @@ export class MultiArgEmitter<T extends unknown[]> implements IDisposable {
         this.fireMode = fireMode;
     }
 
+    public toString(): string {
+        if (this._isDisposed) {
+            return "MultiArgEmitter(disposed)";
+        }
+        return `MultiArgEmitter(${this._listeners.length})`;
+    }
+
     private _listeners: IMultiArgListener<T>[] = [];
     public get listenerCount(): number {
         if (this._isDisposed) {

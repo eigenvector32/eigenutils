@@ -23,6 +23,13 @@ export function isIDependency(input: any): input is IDependency {
 }
 
 export class BaseDependency implements IDependency {
+    public toString(): string {
+        if (this._isDisposed) {
+            return "BaseDependency(disposed)";
+        }
+        return `BaseDependency(${this._dependencyState})`;
+    }
+
     public readonly [IDependencySymbol] = true;
 
     protected _dependencyState: DependencyState = DependencyState.Uninitialized;
@@ -38,11 +45,11 @@ export class BaseDependency implements IDependency {
         return this._dependencyStateChangedEmitter.event;
     }
 
+    protected _isDisposed: boolean = false;
     public [Symbol.dispose](): void {
-        this._dependencyStateChangedEmitter?.[Symbol.dispose]();
-    }
-
-    public toString(): string {
-        return `BaseDependency(${this._dependencyState})`;
+        if (!this._isDisposed) {
+            this._dependencyStateChangedEmitter?.[Symbol.dispose]();
+            this._isDisposed = true;
+        }
     }
 }

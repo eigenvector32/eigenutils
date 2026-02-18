@@ -44,6 +44,13 @@ interface IDependencyWrapper {
 }
 
 export class BaseDependencyContainer implements IDependencyContainer {
+    public toString(): string {
+        if (this._isDisposed) {
+            return "BaseDependencyContainer(disposed)";
+        }
+        return `BaseDependencyContainer(${this._dependencyContainerState},${this._dependencies.size})`;
+    }
+
     public readonly [IDependencyContainerSymbol] = true;
 
     protected _dependencies: Map<string, IDependencyWrapper> = new Map<string, IDependencyWrapper>();
@@ -206,7 +213,7 @@ export class BaseDependencyContainer implements IDependencyContainer {
         return wrapper.dependency as T;
     }
 
-    private _isDisposed: boolean = false;
+    protected _isDisposed: boolean = false;
     public [Symbol.dispose](): void {
         if (!this._isDisposed) {
             this._dependencyContainerStateChangedEmitter?.[Symbol.dispose]();
@@ -214,9 +221,5 @@ export class BaseDependencyContainer implements IDependencyContainer {
             this._dependencyRemovedEmitter?.[Symbol.dispose]();
             this._isDisposed = true;
         }
-    }
-
-    public toString(): string {
-        return `BaseDependencyContainer(${this._dependencyContainerState, this._dependencies.size})`;
     }
 }

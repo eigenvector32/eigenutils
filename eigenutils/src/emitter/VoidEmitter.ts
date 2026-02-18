@@ -24,6 +24,13 @@ export class VoidEmitter implements IDisposable {
         this.fireMode = fireMode;
     }
 
+    public toString(): string {
+        if (this._isDisposed) {
+            return "VoidEmitter(disposed)";
+        }
+        return `VoidEmitter(${this._listeners.length})`;
+    }
+
     private _listeners: IVoidListener[] = [];
     public get listenerCount(): number {
         if (this._isDisposed) {

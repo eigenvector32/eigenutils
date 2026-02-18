@@ -33,6 +33,18 @@ export class NumberDataProperty extends BaseDataProperty<number> {
         this.validate(false);
     }
 
+    public override toString(): string {
+        if (this._isDisposed) {
+            return "NumberDataProperty(disposed)";
+        }
+        if (this._index === null) {
+            return `NumberDataProperty(${this._nodeName}, ${this._value})`;
+        }
+        else {
+            return `NumberDataProperty(${this._nodeName}[${this._index}], ${this._value})`;
+        }
+    }
+
     protected _minValue: number | null;
     public get minValue(): number | null {
         return this._minValue;
@@ -72,14 +84,5 @@ export class NumberDataProperty extends BaseDataProperty<number> {
             }
         }
         this._isValid = true;
-    }
-
-    public override toString(): string {
-        if (this._index === null) {
-            return `NumberDataProperty(${this._nodeName}, ${this._value})`;
-        }
-        else {
-            return `NumberDataProperty(${this._nodeName}[${this._index}], ${this._value})`;
-        }
     }
 }

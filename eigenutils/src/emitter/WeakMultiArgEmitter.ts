@@ -25,6 +25,13 @@ export class WeakMultiArgEmitter<T extends unknown[]> implements IDisposable {
         this.fireMode = fireMode;
     }
 
+    public toString(): string {
+        if (this._isDisposed) {
+            return "WeakMultiArgEmitter(disposed)";
+        }
+        return `WeakMultiArgEmitter(${this._listeners.length})`;
+    }
+
     private _listeners: IWeakMultiArgListener<T>[] = [];
     public get listenerCount(): number {
         if (this._isDisposed) {

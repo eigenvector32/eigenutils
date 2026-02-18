@@ -28,6 +28,18 @@ export class BaseDataNode implements IDataNode {
         this._index = index;
     }
 
+    public toString(): string {
+        if (this._isDisposed) {
+            return "BaseDataNode(disposed)";
+        }
+        if (this._index === null) {
+            return `BaseDataNode(${this._nodeName})`;
+        }
+        else {
+            return `BaseDataNode(${this._nodeName}[${this._index}])`;
+        }
+    }
+
     public readonly [IDataNodeSymbol] = true;
 
     protected _nodeName: string | null;
@@ -67,16 +79,11 @@ export class BaseDataNode implements IDataNode {
         return this._dataChangedEmitter.event;
     }
 
+    protected _isDisposed: boolean = false;
     public [Symbol.dispose](): void {
-        this._dataChangedEmitter?.[Symbol.dispose]();
-    }
-
-    public toString(): string {
-        if (this._index === null) {
-            return `BaseDataNode(${this._nodeName})`;
-        }
-        else {
-            return `BaseDataNode(${this._nodeName}[${this._index}])`;
+        if (!this._isDisposed) {
+            this._dataChangedEmitter?.[Symbol.dispose]();
+            this._isDisposed = true;
         }
     }
 }

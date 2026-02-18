@@ -19,6 +19,18 @@ export function isIDataNodeWithPropertiesDependency(input: any): input is IDataN
 }
 
 export class BaseDataNodeWithPropertiesDependency extends BaseDataNodeWithProperties implements IDataNodeWithPropertiesDependency {
+    public override toString(): string {
+        if (this._isDisposed) {
+            return "BaseDataNodeWithPropertiesDependency(disposed)";
+        }
+        if (this._index === null) {
+            return `BaseDataNodeWithPropertiesDependency(${this._nodeName},${this._dependencyState},${this._properties})`;
+        }
+        else {
+            return `BaseDataNodeWithPropertiesDependency(${this._nodeName}[${this._index}],${this._dependencyState},${this._properties})`;
+        }
+    }
+
     public readonly [IDependencySymbol] = true;
     public readonly [IDataNodeWithPropertiesDependencySymbol] = true;
 
@@ -36,16 +48,9 @@ export class BaseDataNodeWithPropertiesDependency extends BaseDataNodeWithProper
     }
 
     public override[Symbol.dispose](): void {
+        if (!this._isDisposed) {
+            this._dependencyStateChangedEmitter?.[Symbol.dispose]();
+        }
         super[Symbol.dispose]();
-        this._dependencyStateChangedEmitter?.[Symbol.dispose]();
-    }
-
-    public override toString(): string {
-        if (this._index === null) {
-            return `BaseDataNodeWithPropertiesDependency(${this._nodeName},${this._dependencyState},${this._properties})`;
-        }
-        else {
-            return `BaseDataNodeWithPropertiesDependency(${this._nodeName}[${this._index}],${this._dependencyState},${this._properties})`;
-        }
     }
 }

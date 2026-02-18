@@ -13,6 +13,13 @@ export class DualEmitter<T> implements IDisposable {
         this._fireMode = fireMode;
     }
 
+    public toString(): string {
+        if (this._isDisposed) {
+            return "DualEmitter(disposed)";
+        }
+        return `DualEmitter(${this._strongEmitter?.listenerCount},${this._weakEmitter?.listenerCount})`;
+    }
+
     private _strongEmitter: Emitter<T> | null = null;
     private _weakEmitter: WeakEmitter<T> | null = null;
     private _event: DualEvent<T> | null = null;

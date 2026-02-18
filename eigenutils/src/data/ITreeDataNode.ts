@@ -39,6 +39,18 @@ export class BaseTreeDataNode extends BaseDataNodeWithProperties implements ITre
         }
     }
 
+    public override toString(): string {
+        if (this._isDisposed) {
+            return "BaseTreeDataNode(disposed)";
+        }
+        if (this._index === null) {
+            return `BaseTreeDataNode(${this._nodeName})`;
+        }
+        else {
+            return `BaseTreeDataNode(${this._nodeName}[${this._index}])`;
+        }
+    }
+
     protected parentGetSideEffect: (() => void) | null = null;
     protected childrenGetSideEffect: (() => void) | null = null;
 
@@ -70,20 +82,13 @@ export class BaseTreeDataNode extends BaseDataNodeWithProperties implements ITre
     }
 
     public override[Symbol.dispose](): void {
-        for (let i: number = 0; i < this._children.length; i++) {
-            this._children[i][Symbol.dispose]();
+        if (!this._isDisposed) {
+            for (let i: number = 0; i < this._children.length; i++) {
+                this._children[i][Symbol.dispose]();
+            }
+            this._children = [];
+            this._parent = null;
         }
-        this._children = [];
         super[Symbol.dispose]();
-        this._parent = null;
-    }
-
-    public override toString(): string {
-        if (this._index === null) {
-            return `BaseTreeDataNode(${this._nodeName})`;
-        }
-        else {
-            return `BaseTreeDataNode(${this._nodeName}[${this._index}])`;
-        }
     }
 }

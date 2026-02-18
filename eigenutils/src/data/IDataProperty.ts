@@ -85,6 +85,18 @@ export class BaseDataProperty<T> extends BaseDataNode implements IDataProperty<T
         this.validate(false);
     }
 
+    public override toString(): string {
+        if (this._isDisposed) {
+            return "BaseDataProperty(disposed)";
+        }
+        if (this._index === null) {
+            return `BaseDataProperty(${this._nodeName}, ${this._value})`;
+        }
+        else {
+            return `BaseDataProperty(${this._nodeName}[${this._index}], ${this._value})`;
+        }
+    }
+
     protected valueChangedSideEffect: (() => void) | null = null;
     protected valueGetSideEffect: (() => void) | null = null;
     protected validateImpl: (() => void) | null = null;
@@ -154,21 +166,14 @@ export class BaseDataProperty<T> extends BaseDataNode implements IDataProperty<T
     }
 
     public override[Symbol.dispose](): void {
-        if (isDisposable(this._value)) {
-            this._value[Symbol.dispose]();
+        if (!this._isDisposed) {
+            if (isDisposable(this._value)) {
+                this._value[Symbol.dispose]();
+            }
+            this._isValidChangedEmitter?.[Symbol.dispose]();
+            this._parent = null;
         }
-        this._isValidChangedEmitter?.[Symbol.dispose]();
-        this._parent = null;
         super[Symbol.dispose]();
-    }
-
-    public override toString(): string {
-        if (this._index === null) {
-            return `BaseDataProperty(${this._nodeName}, ${this._value})`;
-        }
-        else {
-            return `BaseDataProperty(${this._nodeName}[${this._index}], ${this._value})`;
-        }
     }
 }
 
@@ -197,6 +202,18 @@ export class BaseDataNodeWithProperties extends BaseDataNode implements IDataNod
         this.childPropertyChangedSideEffect = childPropertyChangedSideEffect;
     }
 
+    public override toString(): string {
+        if (this._isDisposed) {
+            return "BaseDataNodeWithProperties(disposed)";
+        }
+        if (this._index === null) {
+            return `BaseDataNodeWithProperties(${this._nodeName},${this._properties})`;
+        }
+        else {
+            return `BaseDataNodeWithProperties(${this._nodeName}[${this._index}],${this._properties})`;
+        }
+    }
+
     public readonly [IDataNodeWithPropertiesSymbol] = true;
     public readonly [IDataPropertyParentSymbol] = true;
 
@@ -219,19 +236,12 @@ export class BaseDataNodeWithProperties extends BaseDataNode implements IDataNod
     protected childPropertyChangedSideEffect: ((_source: IDataProperty<unknown> | null, _propertyName: string | null, _index: number | null, _path: IDataNode[]) => void) | null = null;
 
     public override[Symbol.dispose](): void {
-        this._properties.forEach((prop: IDataProperty<unknown>, _: string) => {
-            prop[Symbol.dispose]();
-        });
-        this._properties = new Map<string, IDataProperty<unknown>>();
+        if (!this._isDisposed) {
+            this._properties.forEach((prop: IDataProperty<unknown>, _: string) => {
+                prop[Symbol.dispose]();
+            });
+            this._properties = new Map<string, IDataProperty<unknown>>();
+        }
         super[Symbol.dispose]();
-    }
-
-    public override toString(): string {
-        if (this._index === null) {
-            return `BaseDataNodeWithProperties(${this._nodeName},${this._properties})`;
-        }
-        else {
-            return `BaseDataNodeWithProperties(${this._nodeName}[${this._index}],${this._properties})`;
-        }
     }
 }

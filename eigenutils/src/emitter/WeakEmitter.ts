@@ -25,6 +25,13 @@ export class WeakEmitter<T> implements IDisposable {
         this.fireMode = fireMode;
     }
 
+    public toString(): string {
+        if (this._isDisposed) {
+            return "WeakEmitter(disposed)";
+        }
+        return `WeakEmitter(${this._listeners.length})`;
+    }
+
     private _listeners: IWeakListener<T>[] = [];
     public get listenerCount(): number {
         if (this._isDisposed) {

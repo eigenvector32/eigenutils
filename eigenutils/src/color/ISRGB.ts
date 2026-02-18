@@ -26,13 +26,13 @@ export class SRGB implements ISRGB {
         this.b = b;
     }
 
+    public toString(): string {
+        return `SRGB(${this.r},${this.g},${this.b})`;
+    }
+
     public readonly [ISRGBSymbol] = true;
 
     public readonly r: number;
     public readonly g: number;
     public readonly b: number;
-
-    public toString(): string {
-        return `SRGB(${this.r},${this.g},${this.b})`;
-    }
 }

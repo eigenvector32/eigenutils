@@ -26,13 +26,13 @@ export class SRGBNormalized implements ISRGBNormalized {
         this.b = b;
     }
 
+    public toString(): string {
+        return `SRGBNormalized(${this.r},${this.g},${this.b})`;
+    }
+
     public readonly [ISRGBNormalizedSymbol] = true;
 
     public readonly r: number;
     public readonly g: number;
     public readonly b: number;
-
-    public toString(): string {
-        return `SRGBNormalized(${this.r},${this.g},${this.b})`;
-    }
 }
