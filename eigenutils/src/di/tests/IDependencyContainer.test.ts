@@ -13,20 +13,20 @@ describe('Tests for BaseDependencyContainer', () => {
 
     test('Initial dependencyContainerState', () => {
         const container: BaseDependencyContainer = new BaseDependencyContainer();
-        expect(container.dependencyContainerState).toBe(DependencyContainerState.Uninitialized);
+        expect(container.dependencyContainerState).toBe(DependencyContainerState.Initialized);
     });
 
     test('dependencyContainerState changes when dependencies are added', () => {
         const container: BaseDependencyContainer = new BaseDependencyContainer();
-        expect(container.dependencyContainerState).toBe(DependencyContainerState.Uninitialized);
-
-        container.addDependency("MockDependency", new MockDependency(DependencyState.Initialized));
         expect(container.dependencyContainerState).toBe(DependencyContainerState.Initialized);
+
+        container.addDependency("MockDependency", new MockDependency(DependencyState.Initializing));
+        expect(container.dependencyContainerState).toBe(DependencyContainerState.Initializing);
     });
 
     test('dependencyContainerState changes when dependencies update', () => {
         const container: BaseDependencyContainer = new BaseDependencyContainer();
-        expect(container.dependencyContainerState).toBe(DependencyContainerState.Uninitialized);
+        expect(container.dependencyContainerState).toBe(DependencyContainerState.Initialized);
         const mock: MockDependency = new MockDependency(DependencyState.Uninitialized);
         container.addDependency("MockDependency", mock);
         expect(container.dependencyContainerState).toBe(DependencyContainerState.Uninitialized);
@@ -38,7 +38,7 @@ describe('Tests for BaseDependencyContainer', () => {
 
     test('dependencyContainerState is set by the least initialized dependency', () => {
         const container: BaseDependencyContainer = new BaseDependencyContainer();
-        expect(container.dependencyContainerState).toBe(DependencyContainerState.Uninitialized);
+        expect(container.dependencyContainerState).toBe(DependencyContainerState.Initialized);
         const mockA: MockDependency = new MockDependency(DependencyState.Uninitialized);
         const mockB: MockDependency = new MockDependency(DependencyState.Uninitialized);
         const mockC: MockDependency = new MockDependency(DependencyState.Uninitialized);
@@ -58,7 +58,7 @@ describe('Tests for BaseDependencyContainer', () => {
 
     test('getInitializedPromise', async () => {
         const container: BaseDependencyContainer = new BaseDependencyContainer();
-        expect(container.dependencyContainerState).toBe(DependencyContainerState.Uninitialized);
+        expect(container.dependencyContainerState).toBe(DependencyContainerState.Initialized);
         const mock: MockDependency = new MockDependency(DependencyState.Uninitialized);
         container.addDependency("MockDependency", mock);
         expect(container.dependencyContainerState).toBe(DependencyContainerState.Uninitialized);

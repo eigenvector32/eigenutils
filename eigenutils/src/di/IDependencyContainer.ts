@@ -44,6 +44,10 @@ interface IDependencyWrapper {
 }
 
 export class BaseDependencyContainer implements IDependencyContainer {
+    constructor() {
+        this.updateState();
+    }
+
     public toString(): string {
         if (this._isDisposed) {
             return "BaseDependencyContainer(disposed)";
@@ -63,7 +67,7 @@ export class BaseDependencyContainer implements IDependencyContainer {
         return this._dependencyContainerState;
     }
 
-    protected updateState(): void {
+    protected updateState(fire: boolean = true): void {
         let newState: DependencyContainerState = DependencyContainerState.Initialized;
         this._dependencies.forEach((d: IDependencyWrapper) => {
             switch (newState) {
@@ -84,7 +88,9 @@ export class BaseDependencyContainer implements IDependencyContainer {
         });
         if (newState !== this._dependencyContainerState) {
             this._dependencyContainerState = newState;
-            this._dependencyContainerStateChangedEmitter?.fire(this, this._dependencyContainerState);
+            if (fire) {
+                this._dependencyContainerStateChangedEmitter?.fire(this, this._dependencyContainerState);
+            }
 
             if (newState === DependencyContainerState.Initialized && this._initializedPromise !== null && this._initializedPromiseResolve !== null) {
                 const resolve: () => void = this._initializedPromiseResolve;
