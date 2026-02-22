@@ -7,7 +7,7 @@ export class MockDependency extends BaseDependency {
         this._dependencyState = initialState;
     }
 
-    public setDependencyState(state: DependencyState): void {
+    public override setDependencyState(state: DependencyState): void {
         if (state !== this._dependencyState) {
             this._dependencyState = state;
             this._dependencyStateChangedEmitter?.fire(this, this._dependencyState);

@@ -32,6 +32,13 @@ export class BaseDependency implements IDependency {
 
     public readonly [IDependencySymbol] = true;
 
+    protected setDependencyState(state: DependencyState) {
+        if (this._dependencyState !== state) {
+            this._dependencyState = state;
+            this._dependencyStateChangedEmitter?.fire(this, state);
+        }
+    }
+
     protected _dependencyState: DependencyState = DependencyState.Uninitialized;
     public get dependencyState(): DependencyState {
         return this._dependencyState;
