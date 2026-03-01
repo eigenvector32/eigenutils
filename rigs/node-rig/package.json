@@ -1,0 +1,25 @@
+{
+    "name": "node-rig",
+    "description": "Rig for node.js code",
+    "version": "0.0.1",
+    "private": true,
+    "scripts": {
+        "build": "",
+        "build:production": "",
+        "_phase:build": "",
+        "_phase:test": ""
+    },
+    "peerDependencies": {
+        "@rushstack/heft": "~1.1.1"
+    },
+    "dependencies": {        
+        "@rushstack/heft-typescript-plugin": "~1.3.1",
+        "@rushstack/heft-jest-plugin": "~1.2.6",
+        "typescript": "^5.9.3",
+        "@types/node": "~25.3.3",
+        "@types/heft-jest": "1.0.6"
+    },
+    "devDependencies": {
+        "@rushstack/heft": "~1.2.6"
+    }
+}

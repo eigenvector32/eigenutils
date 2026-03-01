@@ -416,6 +416,10 @@
       "projectFolder": "rigs/ts-rig"
     },
     {
+      "packageName": "node-rig",
+      "projectFolder": "rigs/node-rig"
+    },
+    {
       "packageName": "eigenutils",
       "projectFolder": "eigenutils"
     }
