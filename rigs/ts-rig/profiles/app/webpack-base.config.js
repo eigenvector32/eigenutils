@@ -3,11 +3,45 @@
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const path = require('path');
 
+function debugObj(input, name = "", depth = 0, maxDepth = 2) {
+    if (depth > maxDepth) {
+        return "";
+    }
+    let padding = "";
+    if (depth > 0) {
+        padding += "\n";
+    }
+    for (let i = 0; i < depth; i++) {
+        padding += "  ";
+    }
+    switch (typeof input) {
+        case "undefined":
+            return `${padding}${name}: undefined`;
+        case "object":
+            if (input === null) {
+                return `${padding}${name}: null`;
+            }
+            else {
+                for (const [key, val] of Object.entries(input)) {
+                    return `${padding}${name}: ${debugObj(val, key, depth + 1, maxDepth)}`;
+                }
+            }
+        default:
+            return `${padding}${name}: ${String(input)}`;
+
+    }
+}
+
 // See https://webpack.js.org/api/cli/#environment-options for env
-function createWebpackConfig({ env, argv, projectRoot }) {
+function createWebpackConfig({ env, argv, projectRoot, extendedConfig }) {
     const config = {};
 
     config.mode = env.production ? 'production' : 'development';
+
+    console.log(`createWebpackConfig is in mode ${config.mode}`);
+    console.log(debugObj(env, "env"));
+    console.log(debugObj(argv, "argv"));
+    console.log(debugObj(projectRoot, "projectRoot"));
 
     if (config.mode == 'development') {
         config.devtool = 'source-map';
@@ -48,7 +82,7 @@ function createWebpackConfig({ env, argv, projectRoot }) {
     };
     config.output = {
         path: path.join(projectRoot, 'bin'),
-        filename: '[name]_[contenthash].js'
+        filename: extendedConfig?.filename ?? '[name]_[contenthash].js'
     };
 
     config.devServer = {
