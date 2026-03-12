@@ -3,7 +3,7 @@
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const path = require('path');
 
-function debugObj(input, name = "", depth = 0, maxDepth = 2) {
+function debugObj(input, name = "", depth = 0, maxDepth = 4) {
     if (depth > maxDepth) {
         return "";
     }
@@ -42,6 +42,7 @@ function createWebpackConfig({ env, argv, projectRoot, extendedConfig }) {
     console.log(debugObj(env, "env"));
     console.log(debugObj(argv, "argv"));
     console.log(debugObj(projectRoot, "projectRoot"));
+    console.log(debugObj(extendedConfig, "extendedConfig"));
 
     if (config.mode == 'development') {
         config.devtool = 'source-map';
@@ -77,9 +78,26 @@ function createWebpackConfig({ env, argv, projectRoot, extendedConfig }) {
         ]
     };
 
-    config.entry = {
-        app: path.join(projectRoot, 'obj', 'main.js'),
-    };
+    if (extendedConfig.entry) {
+        if (Array.isArray(extendedConfig.entry)) {
+            const entryPoints = [];
+            for (let i = 0; i < extendedConfig.entry.length; i++) {
+                entryPoints.push(path.join(projectRoot, 'obj', extendedConfig.entry[i]));
+            }
+            config.entry = entryPoints;
+        }
+        else {
+            config.entry = {
+                app: path.join(projectRoot, 'obj', 'main.js')
+            };
+        }
+    }
+    else {
+        config.entry = {
+            app: path.join(projectRoot, 'obj', 'main.js')
+        };
+    }
+
     config.output = {
         path: path.join(projectRoot, 'bin'),
         filename: extendedConfig?.filename ?? '[name]_[contenthash].js'
@@ -99,6 +117,10 @@ function createWebpackConfig({ env, argv, projectRoot, extendedConfig }) {
             template: path.resolve(projectRoot, 'assets', 'index.html')
         })
     ];
+
+    if (extendedConfig.externals) {
+        config.externals = extendedConfig.externals;
+    }
 
     return config;
 }
