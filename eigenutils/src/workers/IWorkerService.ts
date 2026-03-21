@@ -1,3 +1,6 @@
+// Copyright (c) 2026 Matthew Owen
+// Distributed under MIT license
+
 import { IDependency, BaseDependency, DependencyState } from "../di/IDependency";
 import { DualEmitter, DualEvent } from "../emitter/DualEmitter";
 import { FireMode } from "../emitter/FireMode";
