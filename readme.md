@@ -1,4 +1,4 @@
-#eigenutils
+# eigenutils
 
 Collection of utilities useful to web applications. There are no import files collecting them together. Each class or function should be imported separately to aid with tree shaking.
 
