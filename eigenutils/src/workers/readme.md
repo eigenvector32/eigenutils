@@ -1,0 +1,1 @@
+A simple wrapper around a web worker intended to be hosted in the dependency container.
