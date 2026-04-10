@@ -11,7 +11,13 @@ export const IWorkerServiceKey: string = "eigenutils.IWorkerService";
 export interface IWorkerService extends IDependency {
     [IWorkerServiceSymbol]: true;
 
-    loadWorker(workerModule: URL): void;
+    // It would be cleaner for the argument here to be a string or URL and to create the worker
+    // internally to this class. However, the fairly new support for workers in webpack 5
+    // really needs the full statement with a literal string for the web worker source to
+    // all be in one line in code. EG: new Worker(new URL('./webWorker.js', import.meta.url))
+    // The loadWorker method will take ownership of the worker passed in and terminate it when
+    // needed.
+    loadWorker(worker: Worker): void;
     postMessage(message: unknown, options?: StructuredSerializeOptions): void;
     postMessageTransfer(message: unknown, transfer: Transferable[]): void;
 
@@ -28,11 +34,11 @@ export function isIWorkerService(input: any): input is IWorkerService {
 }
 
 export class WorkerService extends BaseDependency implements IWorkerService {
-    constructor(workerURL: URL | null = null, fireMode: FireMode = FireMode.Synchronous) {
+    constructor(worker: Worker | null = null, fireMode: FireMode = FireMode.Synchronous) {
         super();
         this._fireMode = fireMode;
-        if (workerURL) {
-            this.loadWorker(workerURL);
+        if (worker) {
+            this.loadWorker(worker);
         }
         else {
             this._dependencyState = DependencyState.Uninitialized;
@@ -48,25 +54,36 @@ export class WorkerService extends BaseDependency implements IWorkerService {
         return `WorkerService(${String(this._worker)})`;
     }
 
-    private _fireMode: FireMode = FireMode.Synchronous;
-    private _worker: Worker | null = null;
+    protected _fireMode: FireMode = FireMode.Synchronous;
+    protected _worker: Worker | null = null;
 
-    public loadWorker(workerURL: URL): void {
+    public loadWorker(worker: Worker): void {
         if (this._worker !== null) {
             throw new Error("Worker has already been created");
         }
-        this._worker = new Worker(workerURL);
+        this._worker = worker;
         this._worker.addEventListener("message", this.onWorkerMessage);
         this._worker.addEventListener("error", this.onWorkerError);
         this._worker.addEventListener("messageerror", this.onWorkerMessageError);
+        this.initializeWorker();
+    }
+
+    // Intended to be overridden
+    protected initializeWorker(): void {
         this.setDependencyState(DependencyState.Initialized);
     }
 
-    private onWorkerMessage(event: MessageEvent): void {
+    protected onWorkerMessage = (event: MessageEvent): void => {
+        this.processMessage(event);
         this._onMessageEmitter?.fire(event);
     }
 
-    private _onMessageEmitter: DualEmitter<MessageEvent> | null = null;
+    // Intended to be overridden
+    protected processMessage(_: MessageEvent): void {
+        // NOP
+    }
+
+    protected _onMessageEmitter: DualEmitter<MessageEvent> | null = null;
     public get onMessage(): DualEvent<MessageEvent> {
         if (this._onMessageEmitter === null) {
             this._onMessageEmitter = new DualEmitter<MessageEvent>(this._fireMode);
@@ -74,11 +91,11 @@ export class WorkerService extends BaseDependency implements IWorkerService {
         return this._onMessageEmitter.event;
     }
 
-    private onWorkerError(event: ErrorEvent): void {
+    protected onWorkerError = (event: ErrorEvent): void => {
         this._onErrorEmitter?.fire(event);
     }
 
-    private _onErrorEmitter: DualEmitter<ErrorEvent> | null = null;
+    protected _onErrorEmitter: DualEmitter<ErrorEvent> | null = null;
     public get onError(): DualEvent<ErrorEvent> {
         if (this._onErrorEmitter === null) {
             this._onErrorEmitter = new DualEmitter<ErrorEvent>(this._fireMode);
@@ -86,11 +103,11 @@ export class WorkerService extends BaseDependency implements IWorkerService {
         return this._onErrorEmitter.event;
     }
 
-    private onWorkerMessageError(event: Event): void {
+    protected onWorkerMessageError = (event: Event): void => {
         this._onMessageErrorEmitter?.fire(event);
     }
 
-    private _onMessageErrorEmitter: DualEmitter<Event> | null = null;
+    protected _onMessageErrorEmitter: DualEmitter<Event> | null = null;
     public get onMessageError(): DualEvent<Event> {
         if (this._onMessageErrorEmitter === null) {
             this._onMessageErrorEmitter = new DualEmitter<Event>(this._fireMode);

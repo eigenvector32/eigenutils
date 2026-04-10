@@ -87,15 +87,24 @@ function createWebpackConfig({ env, argv, projectRoot, extendedConfig }) {
             config.entry = entryPoints;
         }
         else {
-            config.entry = {
-                app: path.join(projectRoot, 'obj', 'main.js')
-            };
+            if (typeof (extendedConfig.entry) === "string") {
+                config.entry = {
+                    app: path.join(projectRoot, 'obj', extendedConfig.entry)
+                };
+            }
+            else {
+                throw new Error(`Unexpected extendedConfig.entry: ${String(extendedConfig.entry)}`);
+            }
         }
     }
     else {
         config.entry = {
             app: path.join(projectRoot, 'obj', 'main.js')
         };
+    }
+
+    if (extendedConfig.resolve) {
+        config.resolve = extendedConfig.resolve;
     }
 
     config.output = {

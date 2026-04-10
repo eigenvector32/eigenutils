@@ -1,4 +1,1 @@
-A simple wrapper around a web worker intended to be hosted in the dependency container.
-Reminder: In order for webpack to put the web worker code in it's own chunk, the URL
-sent to WorkerService should be created like:
-`new URL('./webWorker.js', import.meta.url)`
+The fairly new support for workers in webpack 5 really needs the full statement with a literal string for the web worker source to all be in one line in code. EG: `new Worker(new URL('./webWorker.js', import.meta.url))`. Hence why WorkerService needs a fully created Worker object rather than a URL which would be cleaner.
