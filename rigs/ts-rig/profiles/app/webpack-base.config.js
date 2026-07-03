@@ -78,7 +78,7 @@ function createWebpackConfig({ env, argv, projectRoot, extendedConfig }) {
         ]
     };
 
-    if (extendedConfig.entry) {
+    if (extendedConfig?.entry) {
         if (Array.isArray(extendedConfig.entry)) {
             const entryPoints = [];
             for (let i = 0; i < extendedConfig.entry.length; i++) {
@@ -103,7 +103,7 @@ function createWebpackConfig({ env, argv, projectRoot, extendedConfig }) {
         };
     }
 
-    if (extendedConfig.resolve) {
+    if (extendedConfig?.resolve) {
         config.resolve = extendedConfig.resolve;
     }
 
@@ -127,7 +127,7 @@ function createWebpackConfig({ env, argv, projectRoot, extendedConfig }) {
         })
     ];
 
-    if (extendedConfig.externals) {
+    if (extendedConfig?.externals) {
         config.externals = extendedConfig.externals;
     }
 
