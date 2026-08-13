@@ -1,7 +1,46 @@
-import { IPoint } from "./IPoint";
-import { ISize } from "./ISize";
+import { IPoint, IReadonlyPoint } from "./IPoint";
+import { IReadonlySize, ISize } from "./ISize";
 
-export interface IRectangle extends IPoint, ISize {}
+export interface IReadonlyRectangle extends IReadonlyPoint, IReadonlySize {}
+
+export function isIReadonlyRectangle(input: any): input is IReadonlyRectangle {
+  if (
+    input === null ||
+    input === undefined ||
+    Number.isNaN(input.x) ||
+    Number.isNaN(input.y) ||
+    Number.isNaN(input.width) ||
+    Number.isNaN(input.height)
+  ) {
+    return false;
+  }
+  return true;
+}
+
+export function isValidIReadonlyRectangle(
+  input: any
+): input is IReadonlyRectangle {
+  if (
+    input === null ||
+    input === undefined ||
+    Number.isNaN(input.x) ||
+    Number.isNaN(input.y) ||
+    Number.isNaN(input.width) ||
+    Number.isNaN(input.height) ||
+    input.width < 0 ||
+    input.height < 0
+  ) {
+    return false;
+  }
+  return true;
+}
+
+export interface IRectangle extends IReadonlyRectangle, IPoint, ISize {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+}
 
 export function isIRectangle(input: any): input is IRectangle {
   if (
@@ -33,7 +72,7 @@ export function isValidIRectangle(input: any): input is IRectangle {
   return true;
 }
 
-export function outerBounds(input: IRectangle[]): IRectangle {
+export function outerBounds(input: IReadonlyRectangle[]): IRectangle {
   if (input.length === 0) {
     return { x: 0, y: 0, width: 0, height: 0 };
   }
