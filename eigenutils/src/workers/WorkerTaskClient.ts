@@ -1,22 +1,97 @@
 // Copyright (c) 2026 Matthew Owen
 // Distributed under MIT license
 
-import { IWorkerTaskHostMessage, WorkerTaskHostMessageType, WorkerTaskClientMessageType, isIWorkerTaskHostMessage } from "./IWorkerTaskMessage";
+import { IDisposable } from "../IDisposable";
+import {
+  IWorkerTaskHostMessage,
+  WorkerTaskHostMessageType,
+  WorkerTaskClientMessageType,
+  isIWorkerTaskHostMessage,
+  IWorkerTaskHostDispatchMessage
+} from "./IWorkerTaskMessage";
 
-export class WorkerTaskClient {
-    public processMessage(message: MessageEvent): void {
-        if (isIWorkerTaskHostMessage(message.data)) {
-            console.log(`WorkerTaskClient.processMessage: ${message.data.type}`);
-            switch (message.data.type) {
-                case WorkerTaskHostMessageType.Handshake:
-                    this.processHandshake(message.data);
-                    break;
-            }
-        }
-    }
+export class WorkerTaskClient implements IDisposable {
+  constructor(windowObject: Window) {
+    this._windowObject = windowObject;
+    this._windowObject.addEventListener("message", this.processMessage);
+    this._windowObject.addEventListener(
+      "messageerror",
+      this.onWindowObjectMessageError
+    );
+    this._windowObject.addEventListener(
+      "unhandledrejection",
+      this.onWindowObjectUnhandledRejection
+    );
+  }
 
-    protected processHandshake(_: IWorkerTaskHostMessage) {
-        postMessage({ type: WorkerTaskClientMessageType.HandshakeReply });
+  protected _windowObject: Window;
+
+  protected processMessage = (message: MessageEvent): void => {
+    if (isIWorkerTaskHostMessage(message.data)) {
+      if (message.data.type === WorkerTaskHostMessageType.Handshake) {
+        this.processHandshake(message.data);
+      } else if (message.data.type === WorkerTaskHostMessageType.Shutdown) {
+        this[Symbol.dispose]();
+      } else if (message.data.type === WorkerTaskHostMessageType.DispatchTask) {
+        this.processTaskMessageFromHost(
+          message.data.type,
+          message.data as IWorkerTaskHostDispatchMessage
+        );
+      } else {
+        this.processMessageFromHost(message.data.type, message.data);
+      }
     }
+  };
+
+  // Intended to be overridden
+  protected processMessageFromHost(
+    _type: string,
+    _message: IWorkerTaskHostMessage
+  ) {
+    // NOP
+  }
+
+  // Intended to be overridden
+  protected processTaskMessageFromHost(
+    _type: string,
+    _message: IWorkerTaskHostDispatchMessage
+  ) {
+    // NOP
+  }
+
+  // Intended to be overridden
+  protected onWindowObjectMessageError = (_e: MessageEvent): void => {
+    // NOP
+  };
+
+  // Intended to be overridden
+  protected onWindowObjectUnhandledRejection = (
+    _e: PromiseRejectionEvent
+  ): void => {
+    // NOP
+  };
+
+  protected processHandshake(_: IWorkerTaskHostMessage) {
+    this._windowObject.postMessage({
+      type: WorkerTaskClientMessageType.HandshakeReply
+    });
+  }
+
+  protected _isDisposed: boolean = false;
+  public [Symbol.dispose](): void {
+    if (!this._isDisposed) {
+      this._windowObject.removeEventListener("message", this.processMessage);
+      this._windowObject.removeEventListener(
+        "messageerror",
+        this.onWindowObjectMessageError
+      );
+      this._windowObject.removeEventListener(
+        "unhandledrejection",
+        this.onWindowObjectUnhandledRejection
+      );
+      this._windowObject.postMessage({
+        type: WorkerTaskClientMessageType.ShutdownComplete
+      });
+    }
+  }
 }
-
