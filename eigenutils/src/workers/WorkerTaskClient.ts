@@ -7,7 +7,8 @@ import {
   WorkerTaskHostMessageType,
   WorkerTaskClientMessageType,
   isIWorkerTaskHostMessage,
-  IWorkerTaskHostDispatchMessage
+  IWorkerTaskHostDispatchMessage,
+  IWorkerTaskClienDispatchMessage
 } from "./IWorkerTaskMessage";
 
 export class WorkerTaskClient implements IDisposable {
@@ -57,6 +58,20 @@ export class WorkerTaskClient implements IDisposable {
     _message: IWorkerTaskHostDispatchMessage
   ) {
     // NOP
+  }
+
+  protected sendTaskComplete(
+    taskType: string,
+    taskId: number,
+    taskOutput: unknown
+  ): void {
+    const message: IWorkerTaskClienDispatchMessage = {
+      type: WorkerTaskClientMessageType.TaskComplete,
+      taskType,
+      taskId,
+      taskOutput
+    };
+    this._windowObject.postMessage(message);
   }
 
   // Intended to be overridden

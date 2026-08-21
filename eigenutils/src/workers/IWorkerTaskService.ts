@@ -8,7 +8,8 @@ import {
   WorkerTaskHostMessageType,
   WorkerTaskClientMessageType,
   isIWorkerTasClientMessage,
-  IWorkerTaskClienDispatchMessage
+  IWorkerTaskClienDispatchMessage,
+  IWorkerTaskHostDispatchMessage
 } from "./IWorkerTaskMessage";
 
 export const IWorkerTaskServiceSymbol: unique symbol = Symbol.for(
@@ -87,12 +88,13 @@ export class WorkerTaskService
       resolve: null,
       reject: null
     };
-    this._worker.postMessage({
+    const message: IWorkerTaskHostDispatchMessage = {
       type: WorkerTaskHostMessageType.DispatchTask,
       taskType,
       taskId,
       taskInput
-    });
+    };
+    this._worker.postMessage(message);
     const promise = new Promise<unknown>(
       (resolve: (value: unknown) => void, reject: (reason?: any) => void) => {
         taskInProgress.resolve = resolve;
@@ -110,6 +112,7 @@ export class WorkerTaskService
         const task: ITaskInProgress = this._tasksInProgress[i];
         this._tasksInProgress.splice(i, 1);
         this.finalizeTask(task, message.taskOutput);
+        return;
       }
     }
     throw new Error(

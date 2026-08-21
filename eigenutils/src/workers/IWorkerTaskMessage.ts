@@ -18,7 +18,8 @@ export interface IWorkerTaskHostMessage {
 }
 
 export interface IWorkerTaskHostDispatchMessage extends IWorkerTaskHostMessage {
-  readonly taskId: Symbol;
+  readonly taskId: number;
+  readonly taskType: string;
   readonly taskInput: unknown;
 }
 
