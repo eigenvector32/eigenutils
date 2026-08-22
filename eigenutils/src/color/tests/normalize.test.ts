@@ -3,7 +3,7 @@
 
 import * as rawColorDataNamed from "./colorData_named.json";
 import {
-  parseTriplet,
+  parseArray,
   IRawTestColorData,
   IRawTestColorDataItem
 } from "./IRawTestColorData";
@@ -21,7 +21,7 @@ const signifigantDigits: number = 10;
 
 describe("Tests for formatColor", () => {
   test("Verify test data version", () => {
-    expect(colorData.version).toBe("1.0.0");
+    expect(colorData.version).toBe("1.0.1");
   });
 
   test("clampChannel", () => {
@@ -33,29 +33,31 @@ describe("Tests for formatColor", () => {
 
   test("normalize", () => {
     colorData.data.forEach((rawColor: IRawTestColorDataItem) => {
-      const srgbd65: number[] = parseTriplet(rawColor.srgbD65);
+      const srgb: number[] = parseArray(rawColor.rgb);
 
       const normalized: SRGBNormalized = normalizeISRGB(
-        new SRGB(rawColor.r!, rawColor.g!, rawColor.b!)
+        new SRGB(srgb[0], srgb[1], srgb[2])
       );
 
-      expect(normalized.r).toBeCloseTo(srgbd65[0], signifigantDigits);
-      expect(normalized.g).toBeCloseTo(srgbd65[1], signifigantDigits);
-      expect(normalized.b).toBeCloseTo(srgbd65[2], signifigantDigits);
+      const knownNormalized: number[] = parseArray(rawColor.rgbnormalized);
+      expect(normalized.r).toBeCloseTo(knownNormalized[0], signifigantDigits);
+      expect(normalized.g).toBeCloseTo(knownNormalized[1], signifigantDigits);
+      expect(normalized.b).toBeCloseTo(knownNormalized[2], signifigantDigits);
     });
   });
 
   test("denormalize", () => {
     colorData.data.forEach((rawColor: IRawTestColorDataItem) => {
-      const srgbd65: number[] = parseTriplet(rawColor.srgbD65);
+      const normalized: number[] = parseArray(rawColor.rgbnormalized);
 
       const denormalized: SRGB = denormalizeISRGBNormalized(
-        new SRGBNormalized(srgbd65[0], srgbd65[1], srgbd65[2])
+        new SRGBNormalized(normalized[0], normalized[1], normalized[2])
       );
 
-      expect(denormalized.r).toBe(rawColor.r);
-      expect(denormalized.g).toBe(rawColor.g);
-      expect(denormalized.b).toBe(rawColor.b);
+      const knownRGB: number[] = parseArray(rawColor.rgb);
+      expect(denormalized.r).toBe(knownRGB[0]);
+      expect(denormalized.g).toBe(knownRGB[1]);
+      expect(denormalized.b).toBe(knownRGB[2]);
     });
   });
 });

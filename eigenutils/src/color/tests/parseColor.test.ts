@@ -2,7 +2,11 @@
 // Distributed under MIT license
 
 import * as rawColorDataNamed from "./colorData_named.json";
-import { parseTriplet, IRawTestColorData, IRawTestColorDataItem } from "./IRawTestColorData";
+import {
+  parseArray,
+  IRawTestColorData,
+  IRawTestColorDataItem
+} from "./IRawTestColorData";
 import { parseHexRGBToSRGB, parseHexRGBToSRGBNormalized } from "../parseColor";
 import { SRGB } from "../ISRGB";
 import { SRGBNormalized } from "../ISRGBNormalized";
@@ -11,30 +15,32 @@ const colorData: IRawTestColorData = rawColorDataNamed;
 
 const signifigantDigits: number = 10;
 
-describe('Tests for parseColor', () => {
-    test('Verify test data version', () => {
-        expect(colorData.version).toBe("1.0.0");
+describe("Tests for parseColor", () => {
+  test("Verify test data version", () => {
+    expect(colorData.version).toBe("1.0.1");
+  });
+
+  test("parseHexRGBToSRGB", () => {
+    colorData.data.forEach((rawColor: IRawTestColorDataItem) => {
+      const parsed: SRGB = parseHexRGBToSRGB(rawColor.hexRGB);
+
+      const knownRGB: number[] = parseArray(rawColor.rgb);
+      expect(parsed.r).toBe(knownRGB[0]);
+      expect(parsed.g).toBe(knownRGB[1]);
+      expect(parsed.b).toBe(knownRGB[2]);
     });
+  });
 
-    test('parseHexRGBToSRGB', () => {
-        colorData.data.forEach((rawColor: IRawTestColorDataItem) => {
-            const parsed: SRGB = parseHexRGBToSRGB(rawColor.hex!);
+  test("parseHexRGBToSRGBNormalized", () => {
+    colorData.data.forEach((rawColor: IRawTestColorDataItem) => {
+      const parsed: SRGBNormalized = parseHexRGBToSRGBNormalized(
+        rawColor.hexRGB
+      );
 
-            expect(parsed.r).toBe(rawColor.r);
-            expect(parsed.g).toBe(rawColor.g);
-            expect(parsed.b).toBe(rawColor.b);
-        });
+      const knownNormalized: number[] = parseArray(rawColor.rgbnormalized);
+      expect(parsed.r).toBeCloseTo(knownNormalized[0], signifigantDigits);
+      expect(parsed.g).toBeCloseTo(knownNormalized[1], signifigantDigits);
+      expect(parsed.b).toBeCloseTo(knownNormalized[2], signifigantDigits);
     });
-
-    test('parseHexRGBToSRGBNormalized', () => {
-        colorData.data.forEach((rawColor: IRawTestColorDataItem) => {
-            const srgbd65: number[] = parseTriplet(rawColor.srgbD65)
-
-            const parsed: SRGBNormalized = parseHexRGBToSRGBNormalized(rawColor.hex!);
-
-            expect(parsed.r).toBeCloseTo(srgbd65[0], signifigantDigits);
-            expect(parsed.g).toBeCloseTo(srgbd65[1], signifigantDigits);
-            expect(parsed.b).toBeCloseTo(srgbd65[2], signifigantDigits);
-        });
-    });
+  });
 });
