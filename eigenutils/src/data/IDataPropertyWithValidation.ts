@@ -64,13 +64,18 @@ export class BaseDataPropertyWithValidation<T> extends BaseDataProperty<T> imple
     // NOP
   }
 
+  protected override fireModeChanged(): void {
+    if (this._isValidChangedEmitter !== null) {
+      this._isValidChangedEmitter.fireMode = this._fireMode;
+    }
+  }
+
   protected _isValid: boolean = true;
   public get isValid(): boolean {
     return this._isValid;
   }
 
   protected _isValidChangedEmitter: DualMultiArgEmitter<[IDataProperty<T>, boolean]> | null = null;
-
   public get isValidChanged(): DualMultiArgEvent<[IDataProperty<T>, boolean]> {
     if (this._isValidChangedEmitter === null) {
       this._isValidChangedEmitter = new DualMultiArgEmitter<[IDataProperty<T>, boolean]>(this._fireMode);
