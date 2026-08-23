@@ -31,6 +31,8 @@ export interface IReadonlyDataProperty<T> extends IDataNode {
   readonly [IReadonlyDataPropertySymbol]: true;
   readonly parent: IDataPropertyParent | null;
   readonly value: T;
+  // It can be convenient sometimes to have a method signature to work with rather than a property signature
+  getValue(): T;
 }
 
 export const IDataPropertySymbol: unique symbol = Symbol.for("eigenutils.IDataPropertySymbol");
@@ -44,8 +46,9 @@ export function isIDataProperty(input: any): input is IDataProperty<unknown> {
 
 export interface IDataProperty<T> extends IReadonlyDataProperty<T> {
   readonly [IDataPropertySymbol]: true;
-  readonly parent: IDataPropertyParent | null;
   value: T;
+  // It can be convenient sometimes to have a method signature to work with rather than a property signature
+  setValue(value: T): void;
 }
 
 export class BaseDataProperty<T> extends BaseDataNode implements IDataProperty<T> {
@@ -98,6 +101,14 @@ export class BaseDataProperty<T> extends BaseDataNode implements IDataProperty<T
         parentRef.onChildPropertyChanged(this, this._nodeName, this._index, [this]);
       }
     }
+  }
+
+  public getValue(): T {
+    return this._value;
+  }
+
+  public setValue(value: T): void {
+    this.value = value;
   }
 
   // Intended to be overridden

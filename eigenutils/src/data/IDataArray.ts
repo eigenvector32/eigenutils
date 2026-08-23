@@ -4,8 +4,16 @@
 import { isDisposable } from "../IDisposable";
 import { IDataNode, BaseDataNode } from "./IDataNode";
 import { IDataProperty, IDataPropertyParent, IDataPropertyParentSymbol } from "./IDataProperty";
+import { DualMultiArgEmitter, DualMultiArgEvent } from "../emitter/DualMultiArgEmitter";
 
 export const IReadonlyDataArraySymbol: unique symbol = Symbol.for("eigenutils.IReadonlyDataArraySymbol");
+
+export function isIReadonlyDataArray(input: any): input is IReadonlyDataArray<unknown> {
+  if (input === null || input === undefined) {
+    return false;
+  }
+  return input[IReadonlyDataArraySymbol] === true;
+}
 
 export interface IReadonlyDataArray<T> extends IDataNode, IDataPropertyParent {
   [IReadonlyDataArraySymbol]: true;
@@ -14,7 +22,12 @@ export interface IReadonlyDataArray<T> extends IDataNode, IDataPropertyParent {
   // be a child of a single graph node.
   readonly parent: IDataPropertyParent | null;
 
+  readonly length: number;
   getValue(index: number): T;
+
+  // Note that this only indicates a change in the structure of the array. It will not fire if
+  // the value at a given index is changed.
+  arrayChanged: DualMultiArgEvent<[IDataArrayMutation[], IDataNode | null, string | null, number | null, IDataNode[]]>;
 
   /////////////////////////////////////////////////
   // lib.es2023.array.d.ts
@@ -277,14 +290,14 @@ export interface IReadonlyDataArray<T> extends IDataNode, IDataPropertyParent {
   // readonly [n: number]: T;
 }
 
-export function isIReadonlyDataArray(input: any): input is IReadonlyDataArray<unknown> {
+export const IDataArraySymbol: unique symbol = Symbol.for("eigenutils.IDataArraySymbol");
+
+export function isIDataArray(input: any): input is IDataArray<unknown> {
   if (input === null || input === undefined) {
     return false;
   }
-  return input[IReadonlyDataArraySymbol] === true;
+  return input[IDataArraySymbol] === true;
 }
-
-export const IDataArraySymbol: unique symbol = Symbol.for("eigenutils.IDataArraySymbol");
 
 export interface IDataArray<T> extends IReadonlyDataArray<T> {
   [IDataArraySymbol]: true;
@@ -604,11 +617,56 @@ export interface IDataArray<T> extends IReadonlyDataArray<T> {
   // [n: number]: T;
 }
 
-export function isDataArray(input: any): input is IDataArray<unknown> {
+export enum DataArrayMutationType {
+  Add, // Add exactly 1 item to any index in the array, all indices after the added item will have changed
+  Remove, // Remove exactly 1 item from any index in the array, all indices after the removed item will have changed
+  Reorder, // No items added or removed but any and all indices could have changed
+  // Special cases handled separately to allow for optimization
+  Push, // Add exactly 1 item to the end of the array
+  Pop, // Remove exactly 1 item from the end of the array
+  Clear // Remove all
+}
+
+export const IDataArrayMutationSymbol: unique symbol = Symbol.for("eigenutils.IDataArrayMutation");
+
+export function isIDataArrayMutation(input: any): input is IDataArrayMutation {
   if (input === null || input === undefined) {
     return false;
   }
-  return input[IDataArraySymbol] === true;
+  return input[IDataArrayMutationSymbol] === true;
+}
+
+export interface IDataArrayMutation {
+  [IDataArrayMutationSymbol]: true;
+  readonly type: DataArrayMutationType;
+}
+
+export const IDataArrayAddMutationSymbol: unique symbol = Symbol.for("eigenutils.IDataArrayAddMutation");
+
+export function isIDataArrayAddMutation(input: any): input is IDataArrayAddMutation {
+  if (input === null || input === undefined) {
+    return false;
+  }
+  return input[IDataArrayAddMutationSymbol] === true;
+}
+
+export interface IDataArrayAddMutation extends IDataArrayMutation {
+  [IDataArrayAddMutationSymbol]: true;
+  readonly index: number;
+}
+
+export const IDataArrayRemoveMutationSymbol: unique symbol = Symbol.for("eigenutils.IDataArrayRemoveMutation");
+
+export function isIDataArrayRemoveMutation(input: any): input is IDataArrayRemoveMutation {
+  if (input === null || input === undefined) {
+    return false;
+  }
+  return input[IDataArrayRemoveMutationSymbol] === true;
+}
+
+export interface IDataArrayRemoveMutation extends IDataArrayMutation {
+  [IDataArrayRemoveMutationSymbol]: true;
+  readonly index: number;
 }
 
 export class BaseDataArray<T> extends BaseDataNode implements IDataArray<T> {
@@ -642,7 +700,6 @@ export class BaseDataArray<T> extends BaseDataNode implements IDataArray<T> {
 
   protected _parent: WeakRef<IDataPropertyParent> | null;
   public get parent(): IDataPropertyParent | null {
-    this.parentGetSideEffect();
     const parentRef: IDataPropertyParent | undefined | null = this._parent?.deref();
     if (parentRef) {
       return parentRef;
@@ -650,14 +707,8 @@ export class BaseDataArray<T> extends BaseDataNode implements IDataArray<T> {
     return null;
   }
 
-  protected parentGetSideEffect(): void {
-    // intended to be overridden
-  }
-
   public onChildPropertyChanged(source: IDataProperty<unknown> | null, propertyName: string | null, index: number | null, path: IDataNode[]): void {
     path.push(this);
-
-    this.childPropertyChangedSideEffect(propertyName, index, path);
 
     this._dataChangedEmitter?.fire(source, propertyName, index, path);
 
@@ -665,10 +716,6 @@ export class BaseDataArray<T> extends BaseDataNode implements IDataArray<T> {
     if (parentRef) {
       parentRef.onChildPropertyChanged(source, propertyName, index, path);
     }
-  }
-
-  protected childPropertyChangedSideEffect(_propertyName: string | null, _index: number | null, _path: IDataNode[]): void {
-    // Intended to be overridden by subclasses
   }
 
   protected _data: T[];
@@ -687,8 +734,19 @@ export class BaseDataArray<T> extends BaseDataNode implements IDataArray<T> {
     this._data[index] = value;
   }
 
+  protected _arrayChangedEmitter: DualMultiArgEmitter<[IDataArrayMutation[], IDataNode | null, string | null, number | null, IDataNode[]]> | null = null;
+  public get arrayChanged(): DualMultiArgEvent<[IDataArrayMutation[], IDataNode | null, string | null, number | null, IDataNode[]]> {
+    if (this._arrayChangedEmitter === null) {
+      this._arrayChangedEmitter = new DualMultiArgEmitter<[IDataArrayMutation[], IDataNode | null, string | null, number | null, IDataNode[]]>(this._fireMode);
+    }
+    return this._arrayChangedEmitter.event;
+  }
+
   public override [Symbol.dispose](): void {
     if (!this._isDisposed) {
+      if (this._arrayChangedEmitter !== null) {
+        this._arrayChangedEmitter[Symbol.dispose]();
+      }
       for (let i: number = 0; i < this._data.length; i++) {
         // Play nice with the type guard by aliasing a local variable
         const d: T = this._data[i];
