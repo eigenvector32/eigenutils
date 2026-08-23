@@ -2,15 +2,13 @@
 // Distributed under MIT license
 import { ISRGBNormalized, ISRGBNormalizedSymbol } from "./ISRGBNormalized";
 
-export const ISRGBANormalizedSymbol: unique symbol = Symbol.for(
-  "eigenutils.color.ISRGBANormalized"
-);
+export const ISRGBANormalizedSymbol: unique symbol = Symbol.for("eigenutils.color.ISRGBANormalized");
 
 // Valid RGBA colors require channels in the range [0,1].
 // Values outside that range may exist when converting between spaces larger than RGB.
 export interface ISRGBANormalized extends ISRGBNormalized {
   [ISRGBANormalizedSymbol]: true;
-  
+
   readonly a: number;
 }
 

@@ -33,18 +33,14 @@ export interface IWorkerTaskClienDispatchMessage extends IWorkerTaskClientMessag
   readonly taskOutput: unknown;
 }
 
-export function isIWorkerTaskHostMessage(
-  input: any
-): input is IWorkerTaskHostMessage {
+export function isIWorkerTaskHostMessage(input: any): input is IWorkerTaskHostMessage {
   if (input === null || input === undefined || typeof input.type !== "string") {
     return false;
   }
   return true;
 }
 
-export function isIWorkerTasClientMessage(
-  input: any
-): input is IWorkerTaskClientMessage {
+export function isIWorkerTasClientMessage(input: any): input is IWorkerTaskClientMessage {
   if (input === null || input === undefined || typeof input.type !== "string") {
     return false;
   }

@@ -12,9 +12,7 @@ import {
   IWorkerTaskHostDispatchMessage
 } from "./IWorkerTaskMessage";
 
-export const IWorkerTaskServiceSymbol: unique symbol = Symbol.for(
-  "eigenutils.IWorkerTaskService"
-);
+export const IWorkerTaskServiceSymbol: unique symbol = Symbol.for("eigenutils.IWorkerTaskService");
 export const IWorkerTaskServiceKey: string = "eigenutils.IWorkerTaskService";
 
 export interface IWorkerTaskService extends IWorkerService {
@@ -42,10 +40,7 @@ interface ITaskInProgress {
   reject: ((reason?: any) => void) | null;
 }
 
-export class WorkerTaskService
-  extends WorkerService
-  implements IWorkerTaskService
-{
+export class WorkerTaskService extends WorkerService implements IWorkerTaskService {
   public readonly [IWorkerTaskServiceSymbol] = true;
 
   public override toString(): string {
@@ -55,8 +50,7 @@ export class WorkerTaskService
     return `WorkerTaskService(${String(this._worker)})`;
   }
 
-  protected _messageState: WorkerTaskServiceMessageState =
-    WorkerTaskServiceMessageState.WaitingForHandshake;
+  protected _messageState: WorkerTaskServiceMessageState = WorkerTaskServiceMessageState.WaitingForHandshake;
 
   protected override initializeWorker(): void {
     this._worker?.postMessage({ type: WorkerTaskHostMessageType.Handshake });
@@ -95,12 +89,10 @@ export class WorkerTaskService
       taskInput
     };
     this._worker.postMessage(message);
-    const promise = new Promise<unknown>(
-      (resolve: (value: unknown) => void, reject: (reason?: any) => void) => {
-        taskInProgress.resolve = resolve;
-        taskInProgress.reject = reject;
-      }
-    );
+    const promise = new Promise<unknown>((resolve: (value: unknown) => void, reject: (reason?: any) => void) => {
+      taskInProgress.resolve = resolve;
+      taskInProgress.reject = reject;
+    });
     taskInProgress.promise = promise;
     this._tasksInProgress.push(taskInProgress);
     return promise;
@@ -115,9 +107,7 @@ export class WorkerTaskService
         return;
       }
     }
-    throw new Error(
-      `Unexpected TaskComplete message with taskId ${message.taskId}`
-    );
+    throw new Error(`Unexpected TaskComplete message with taskId ${message.taskId}`);
   }
 
   protected finalizeTask(task: ITaskInProgress, taskOutput: unknown) {
@@ -130,12 +120,8 @@ export class WorkerTaskService
     if (isIWorkerTasClientMessage(message.data)) {
       if (message.data.type === WorkerTaskClientMessageType.HandshakeReply) {
         this.processHandshakeReply(message.data);
-      } else if (
-        message.data.type === WorkerTaskClientMessageType.TaskComplete
-      ) {
-        this.processTaskComplete(
-          message.data as IWorkerTaskClienDispatchMessage
-        );
+      } else if (message.data.type === WorkerTaskClientMessageType.TaskComplete) {
+        this.processTaskComplete(message.data as IWorkerTaskClienDispatchMessage);
       } else {
         this.processMessageFromClient(message.data.type, message.data);
       }
@@ -143,20 +129,13 @@ export class WorkerTaskService
   }
 
   // Intended to be overridden
-  protected processMessageFromClient(
-    _type: string,
-    _message: IWorkerTaskClientMessage
-  ) {
+  protected processMessageFromClient(_type: string, _message: IWorkerTaskClientMessage) {
     // NOP
   }
 
   protected processHandshakeReply(_: IWorkerTaskClientMessage): void {
-    if (
-      this._messageState !== WorkerTaskServiceMessageState.WaitingForHandshake
-    ) {
-      throw new Error(
-        `Received handshake reply when messageState is ${this._messageState}`
-      );
+    if (this._messageState !== WorkerTaskServiceMessageState.WaitingForHandshake) {
+      throw new Error(`Received handshake reply when messageState is ${this._messageState}`);
     }
     this._messageState = WorkerTaskServiceMessageState.Ready;
     this.setDependencyState(DependencyState.Initialized);

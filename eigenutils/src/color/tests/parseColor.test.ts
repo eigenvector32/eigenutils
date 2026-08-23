@@ -2,11 +2,7 @@
 // Distributed under MIT license
 
 import * as rawColorDataNamed from "./colorData_named.json";
-import {
-  parseArray,
-  IRawTestColorData,
-  IRawTestColorDataItem
-} from "./IRawTestColorData";
+import { parseArray, IRawTestColorData, IRawTestColorDataItem } from "./IRawTestColorData";
 import { parseHexRGBToSRGB, parseHexRGBToSRGBNormalized } from "../parseColor";
 import { SRGB } from "../ISRGB";
 import { SRGBNormalized } from "../ISRGBNormalized";
@@ -33,9 +29,7 @@ describe("Tests for parseColor", () => {
 
   test("parseHexRGBToSRGBNormalized", () => {
     colorData.data.forEach((rawColor: IRawTestColorDataItem) => {
-      const parsed: SRGBNormalized = parseHexRGBToSRGBNormalized(
-        rawColor.hexRGB
-      );
+      const parsed: SRGBNormalized = parseHexRGBToSRGBNormalized(rawColor.hexRGB);
 
       const knownNormalized: number[] = parseArray(rawColor.rgbnormalized);
       expect(parsed.r).toBeCloseTo(knownNormalized[0], signifigantDigits);

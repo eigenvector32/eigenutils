@@ -2,16 +2,8 @@
 // Distributed under MIT license
 
 import * as rawColorDataNamed from "./colorData_named.json";
-import {
-  parseArray,
-  IRawTestColorData,
-  IRawTestColorDataItem
-} from "./IRawTestColorData";
-import {
-  clampChannel,
-  normalizeISRGB,
-  denormalizeISRGBNormalized
-} from "../normalize";
+import { parseArray, IRawTestColorData, IRawTestColorDataItem } from "./IRawTestColorData";
+import { clampChannel, normalizeISRGB, denormalizeISRGBNormalized } from "../normalize";
 import { SRGB } from "../ISRGB";
 import { SRGBNormalized } from "../ISRGBNormalized";
 
@@ -35,9 +27,7 @@ describe("Tests for formatColor", () => {
     colorData.data.forEach((rawColor: IRawTestColorDataItem) => {
       const srgb: number[] = parseArray(rawColor.rgb);
 
-      const normalized: SRGBNormalized = normalizeISRGB(
-        new SRGB(srgb[0], srgb[1], srgb[2])
-      );
+      const normalized: SRGBNormalized = normalizeISRGB(new SRGB(srgb[0], srgb[1], srgb[2]));
 
       const knownNormalized: number[] = parseArray(rawColor.rgbnormalized);
       expect(normalized.r).toBeCloseTo(knownNormalized[0], signifigantDigits);
@@ -50,9 +40,7 @@ describe("Tests for formatColor", () => {
     colorData.data.forEach((rawColor: IRawTestColorDataItem) => {
       const normalized: number[] = parseArray(rawColor.rgbnormalized);
 
-      const denormalized: SRGB = denormalizeISRGBNormalized(
-        new SRGBNormalized(normalized[0], normalized[1], normalized[2])
-      );
+      const denormalized: SRGB = denormalizeISRGBNormalized(new SRGBNormalized(normalized[0], normalized[1], normalized[2]));
 
       const knownRGB: number[] = parseArray(rawColor.rgb);
       expect(denormalized.r).toBe(knownRGB[0]);

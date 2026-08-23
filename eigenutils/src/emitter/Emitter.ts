@@ -64,7 +64,7 @@ export class Emitter<T> implements IDisposable {
       const retVal: IDisposable = {
         [Symbol.dispose]: (): void => {
           this.removeListener(target);
-        },
+        }
       };
       return retVal;
     };
@@ -136,8 +136,7 @@ export class Emitter<T> implements IDisposable {
           fireTargets[i].target.apply(fireTargets[i].context, [a]);
         }
       });
-    }
-    else {
+    } else {
       this._debounceArg = arg;
     }
   }

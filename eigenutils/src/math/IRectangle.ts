@@ -4,22 +4,13 @@ import { IReadonlySize, ISize } from "./ISize";
 export interface IReadonlyRectangle extends IReadonlyPoint, IReadonlySize {}
 
 export function isIReadonlyRectangle(input: any): input is IReadonlyRectangle {
-  if (
-    input === null ||
-    input === undefined ||
-    Number.isNaN(input.x) ||
-    Number.isNaN(input.y) ||
-    Number.isNaN(input.width) ||
-    Number.isNaN(input.height)
-  ) {
+  if (input === null || input === undefined || Number.isNaN(input.x) || Number.isNaN(input.y) || Number.isNaN(input.width) || Number.isNaN(input.height)) {
     return false;
   }
   return true;
 }
 
-export function isValidIReadonlyRectangle(
-  input: any
-): input is IReadonlyRectangle {
+export function isValidIReadonlyRectangle(input: any): input is IReadonlyRectangle {
   if (
     input === null ||
     input === undefined ||
@@ -43,14 +34,7 @@ export interface IRectangle extends IReadonlyRectangle, IPoint, ISize {
 }
 
 export function isIRectangle(input: any): input is IRectangle {
-  if (
-    input === null ||
-    input === undefined ||
-    Number.isNaN(input.x) ||
-    Number.isNaN(input.y) ||
-    Number.isNaN(input.width) ||
-    Number.isNaN(input.height)
-  ) {
+  if (input === null || input === undefined || Number.isNaN(input.x) || Number.isNaN(input.y) || Number.isNaN(input.width) || Number.isNaN(input.height)) {
     return false;
   }
   return true;

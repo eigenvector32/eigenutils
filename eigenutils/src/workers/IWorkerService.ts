@@ -1,17 +1,11 @@
 // Copyright (c) 2026 Matthew Owen
 // Distributed under MIT license
 
-import {
-  IDependency,
-  BaseDependency,
-  DependencyState
-} from "../di/IDependency";
+import { IDependency, BaseDependency, DependencyState } from "../di/IDependency";
 import { DualEmitter, DualEvent } from "../emitter/DualEmitter";
 import { FireMode } from "../emitter/FireMode";
 
-export const IWorkerServiceSymbol: unique symbol = Symbol.for(
-  "eigenutils.IWorkerService"
-);
+export const IWorkerServiceSymbol: unique symbol = Symbol.for("eigenutils.IWorkerService");
 export const IWorkerServiceKey: string = "eigenutils.IWorkerService";
 
 export interface IWorkerService extends IDependency {
@@ -40,10 +34,7 @@ export function isIWorkerService(input: any): input is IWorkerService {
 }
 
 export class WorkerService extends BaseDependency implements IWorkerService {
-  constructor(
-    worker: Worker | null = null,
-    fireMode: FireMode = FireMode.Synchronous
-  ) {
+  constructor(worker: Worker | null = null, fireMode: FireMode = FireMode.Synchronous) {
     super();
     this._fireMode = fireMode;
     if (worker) {
@@ -123,10 +114,7 @@ export class WorkerService extends BaseDependency implements IWorkerService {
     return this._onMessageErrorEmitter.event;
   }
 
-  public postMessage(
-    message: unknown,
-    options?: StructuredSerializeOptions
-  ): void {
+  public postMessage(message: unknown, options?: StructuredSerializeOptions): void {
     if (this._worker === null) {
       throw new Error("No worker exists");
     }
@@ -145,10 +133,7 @@ export class WorkerService extends BaseDependency implements IWorkerService {
       if (this._worker !== null) {
         this._worker.removeEventListener("message", this.onWorkerMessage);
         this._worker.removeEventListener("error", this.onWorkerError);
-        this._worker.removeEventListener(
-          "messageerror",
-          this.onWorkerMessageError
-        );
+        this._worker.removeEventListener("messageerror", this.onWorkerMessageError);
         this._worker.terminate();
         this._worker = null;
       }

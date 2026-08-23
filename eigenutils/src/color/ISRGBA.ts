@@ -3,9 +3,7 @@
 
 import { ISRGB, ISRGBSymbol } from "./ISRGB";
 
-export const ISRGBASymbol: unique symbol = Symbol.for(
-  "eigenutils.color.ISRGBA"
-);
+export const ISRGBASymbol: unique symbol = Symbol.for("eigenutils.color.ISRGBA");
 
 // Valid alpha channel values are in the range [0,255].
 // Values outside that range may exist when converting between spaces larger than RGB.

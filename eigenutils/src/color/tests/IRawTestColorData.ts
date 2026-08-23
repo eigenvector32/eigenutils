@@ -24,25 +24,20 @@ export interface IRawTestColorDataItem {
   oklab: string;
   oklch: string;
   rgb: string;
-  rgbnormalized:string;
+  rgbnormalized: string;
   srgb: string;
   xyzd50: string;
   xyzd65: string;
   yuv: string;
 }
 
-export function parseArray(
-  input?: string | null,
-  expectedLength: number = 3
-): number[] {
+export function parseArray(input?: string | null, expectedLength: number = 3): number[] {
   if (input === undefined || input === null) {
     throw new Error(`Input is null or undefined: ${input}`);
   }
   const split: string[] = input.split(",");
   if (split.length !== expectedLength) {
-    throw Error(
-      `Input split into length ${split.length} but expected ${expectedLength}`
-    );
+    throw Error(`Input split into length ${split.length} but expected ${expectedLength}`);
   }
   const retVal: number[] = new Array<number>(expectedLength);
   for (let i: number = 0; i < split.length; i++) {

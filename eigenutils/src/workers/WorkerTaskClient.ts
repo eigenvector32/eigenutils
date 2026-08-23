@@ -15,14 +15,8 @@ export class WorkerTaskClient implements IDisposable {
   constructor(windowObject: Window) {
     this._windowObject = windowObject;
     this._windowObject.addEventListener("message", this.processMessage);
-    this._windowObject.addEventListener(
-      "messageerror",
-      this.onWindowObjectMessageError
-    );
-    this._windowObject.addEventListener(
-      "unhandledrejection",
-      this.onWindowObjectUnhandledRejection
-    );
+    this._windowObject.addEventListener("messageerror", this.onWindowObjectMessageError);
+    this._windowObject.addEventListener("unhandledrejection", this.onWindowObjectUnhandledRejection);
   }
 
   protected _windowObject: Window;
@@ -34,10 +28,7 @@ export class WorkerTaskClient implements IDisposable {
       } else if (message.data.type === WorkerTaskHostMessageType.Shutdown) {
         this[Symbol.dispose]();
       } else if (message.data.type === WorkerTaskHostMessageType.DispatchTask) {
-        this.processTaskMessageFromHost(
-          message.data.type,
-          message.data as IWorkerTaskHostDispatchMessage
-        );
+        this.processTaskMessageFromHost(message.data.type, message.data as IWorkerTaskHostDispatchMessage);
       } else {
         this.processMessageFromHost(message.data.type, message.data);
       }
@@ -45,26 +36,16 @@ export class WorkerTaskClient implements IDisposable {
   };
 
   // Intended to be overridden
-  protected processMessageFromHost(
-    _type: string,
-    _message: IWorkerTaskHostMessage
-  ) {
+  protected processMessageFromHost(_type: string, _message: IWorkerTaskHostMessage) {
     // NOP
   }
 
   // Intended to be overridden
-  protected processTaskMessageFromHost(
-    _type: string,
-    _message: IWorkerTaskHostDispatchMessage
-  ) {
+  protected processTaskMessageFromHost(_type: string, _message: IWorkerTaskHostDispatchMessage) {
     // NOP
   }
 
-  protected sendTaskComplete(
-    taskType: string,
-    taskId: number,
-    taskOutput: unknown
-  ): void {
+  protected sendTaskComplete(taskType: string, taskId: number, taskOutput: unknown): void {
     const message: IWorkerTaskClienDispatchMessage = {
       type: WorkerTaskClientMessageType.TaskComplete,
       taskType,
@@ -80,9 +61,7 @@ export class WorkerTaskClient implements IDisposable {
   };
 
   // Intended to be overridden
-  protected onWindowObjectUnhandledRejection = (
-    _e: PromiseRejectionEvent
-  ): void => {
+  protected onWindowObjectUnhandledRejection = (_e: PromiseRejectionEvent): void => {
     // NOP
   };
 
@@ -96,14 +75,8 @@ export class WorkerTaskClient implements IDisposable {
   public [Symbol.dispose](): void {
     if (!this._isDisposed) {
       this._windowObject.removeEventListener("message", this.processMessage);
-      this._windowObject.removeEventListener(
-        "messageerror",
-        this.onWindowObjectMessageError
-      );
-      this._windowObject.removeEventListener(
-        "unhandledrejection",
-        this.onWindowObjectUnhandledRejection
-      );
+      this._windowObject.removeEventListener("messageerror", this.onWindowObjectMessageError);
+      this._windowObject.removeEventListener("unhandledrejection", this.onWindowObjectUnhandledRejection);
       this._windowObject.postMessage({
         type: WorkerTaskClientMessageType.ShutdownComplete
       });

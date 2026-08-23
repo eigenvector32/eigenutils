@@ -4,12 +4,7 @@ export interface IReadonlyPoint {
 }
 
 export function isIReadonlyPoint(input: any): input is IReadonlyPoint {
-  if (
-    input === null ||
-    input === undefined ||
-    Number.isNaN(input.x) ||
-    Number.isNaN(input.y)
-  ) {
+  if (input === null || input === undefined || Number.isNaN(input.x) || Number.isNaN(input.y)) {
     return false;
   }
   return true;
@@ -21,12 +16,7 @@ export interface IPoint extends IReadonlyPoint {
 }
 
 export function isIPoint(input: any): input is IPoint {
-  if (
-    input === null ||
-    input === undefined ||
-    Number.isNaN(input.x) ||
-    Number.isNaN(input.y)
-  ) {
+  if (input === null || input === undefined || Number.isNaN(input.x) || Number.isNaN(input.y)) {
     return false;
   }
   return true;

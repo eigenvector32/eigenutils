@@ -2,7 +2,7 @@
 // Distributed under MIT license
 
 export enum FireMode {
-    Synchronous = 1,
-    Microtask = 2,
-    Debounce = 4
-};
+  Synchronous = 1,
+  Microtask = 2,
+  Debounce = 4
+}

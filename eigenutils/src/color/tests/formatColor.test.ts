@@ -29,11 +29,7 @@ describe("Tests for formatColor", () => {
   test("ISRGBNormalizedToHex", () => {
     colorData.data.forEach((rawColor: IRawTestColorDataItem) => {
       const srgb: number[] = parseArray(rawColor.rgbnormalized);
-      const color: SRGBNormalized = new SRGBNormalized(
-        srgb[0],
-        srgb[1],
-        srgb[2]
-      );
+      const color: SRGBNormalized = new SRGBNormalized(srgb[0], srgb[1], srgb[2]);
 
       const formatted: string = ISRGBNormalizedToHex(color);
 
