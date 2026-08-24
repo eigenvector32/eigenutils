@@ -12,7 +12,7 @@ const colorData: IRawTestColorData = rawColorDataNamed;
 
 describe("Tests for formatColor", () => {
   test("Verify test data version", () => {
-    expect(colorData.version).toBe("1.0.1");
+    expect(colorData.version).toBe("1.0.2");
   });
 
   test("ISRGBToHex", () => {
@@ -22,7 +22,7 @@ describe("Tests for formatColor", () => {
 
       const formatted: string = ISRGBToHex(color);
 
-      expect(formatted).toBe(rawColor.hexRGB);
+      expect(formatted).toBe(rawColor.hexrgb);
     });
   });
 
@@ -33,7 +33,7 @@ describe("Tests for formatColor", () => {
 
       const formatted: string = ISRGBNormalizedToHex(color);
 
-      expect(formatted).toBe(rawColor.hexRGB);
+      expect(formatted).toBe(rawColor.hexrgb);
     });
   });
 });

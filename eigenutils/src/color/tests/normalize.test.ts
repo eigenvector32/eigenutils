@@ -13,7 +13,7 @@ const signifigantDigits: number = 10;
 
 describe("Tests for formatColor", () => {
   test("Verify test data version", () => {
-    expect(colorData.version).toBe("1.0.1");
+    expect(colorData.version).toBe("1.0.2");
   });
 
   test("clampChannel", () => {

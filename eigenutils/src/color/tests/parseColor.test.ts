@@ -13,12 +13,12 @@ const signifigantDigits: number = 10;
 
 describe("Tests for parseColor", () => {
   test("Verify test data version", () => {
-    expect(colorData.version).toBe("1.0.1");
+    expect(colorData.version).toBe("1.0.2");
   });
 
   test("parseHexRGBToSRGB", () => {
     colorData.data.forEach((rawColor: IRawTestColorDataItem) => {
-      const parsed: SRGB = parseHexRGBToSRGB(rawColor.hexRGB);
+      const parsed: SRGB = parseHexRGBToSRGB(rawColor.hexrgb);
 
       const knownRGB: number[] = parseArray(rawColor.rgb);
       expect(parsed.r).toBe(knownRGB[0]);
@@ -29,7 +29,7 @@ describe("Tests for parseColor", () => {
 
   test("parseHexRGBToSRGBNormalized", () => {
     colorData.data.forEach((rawColor: IRawTestColorDataItem) => {
-      const parsed: SRGBNormalized = parseHexRGBToSRGBNormalized(rawColor.hexRGB);
+      const parsed: SRGBNormalized = parseHexRGBToSRGBNormalized(rawColor.hexrgb);
 
       const knownNormalized: number[] = parseArray(rawColor.rgbnormalized);
       expect(parsed.r).toBeCloseTo(knownNormalized[0], signifigantDigits);

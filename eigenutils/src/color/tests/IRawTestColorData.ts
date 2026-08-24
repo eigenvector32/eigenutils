@@ -8,7 +8,7 @@ export interface IRawTestColorData {
 
 export interface IRawTestColorDataItem {
   name?: string;
-  hexRGB: string;
+  hexrgb: string;
   adobergb: string;
   ciexyy: string;
   cmyk: string;
@@ -29,6 +29,7 @@ export interface IRawTestColorDataItem {
   xyzd50: string;
   xyzd65: string;
   yuv: string;
+  temperature: string;
 }
 
 export function parseArray(input?: string | null, expectedLength: number = 3): number[] {
