@@ -1,3 +1,6 @@
+// Copyright (c) 2026 Matthew Owen
+// Distributed under MIT license
+
 export interface IReadonlyPoint {
   readonly x: number;
   readonly y: number;

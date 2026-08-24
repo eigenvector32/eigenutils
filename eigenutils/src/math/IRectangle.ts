@@ -1,3 +1,6 @@
+// Copyright (c) 2026 Matthew Owen
+// Distributed under MIT license
+
 import { IPoint, IReadonlyPoint } from "./IPoint";
 import { IReadonlySize, ISize } from "./ISize";
 
