@@ -19,6 +19,12 @@ jobs:
         uses: actions/setup-node@v6.5.0
         with:
           node-version: 26.8.1
+          
+      - name: Clear npm cache
+        run: npm cache clean --force
+
+      - name: Reset npm metadata
+        run: npm config set registry https://registry.npmjs.org/
 
       - name: Install Rush
         run: npm install -g @microsoft/rush
