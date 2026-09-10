@@ -26,6 +26,9 @@ jobs:
       - name: Reset npm metadata
         run: npm config set registry https://registry.npmjs.org/
 
+      - name: Remove lockfile
+        run: rm -f package-lock.json
+
       - name: Install Rush
         run: npm install -g @microsoft/rush
 
