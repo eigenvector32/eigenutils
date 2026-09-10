@@ -1,19 +1,7 @@
 // Copyright (c) 2026 Matthew Owen
 // Distributed under MIT license
 
-export interface IReadonlyComplex {
-  readonly a: number;
-  readonly b: number;
-}
-
-export function isIReadonlyComplex(input: any): input is IReadonlyComplex {
-  if (input === null || input === undefined || Number.isNaN(input.x) || Number.isNaN(input.y)) {
-    return false;
-  }
-  return true;
-}
-
-export interface IComplex extends IReadonlyComplex {
+export interface IComplex {
   a: number;
   b: number;
 }
@@ -25,38 +13,129 @@ export function isIComplex(input: any): input is IComplex {
   return true;
 }
 
-export function add(lhs: IReadonlyComplex, rhs: IReadonlyComplex): IComplex {
-  return {
-    a: lhs.a + rhs.a,
-    b: lhs.b + rhs.b,
-  };
-}
+export class Complex implements IComplex {
+  constructor(a: number = 0, b: number = 0) {
+    this.a = a;
+    this.b = b;
+  }
 
-export function subtract(lhs: IReadonlyComplex, rhs: IReadonlyComplex): IComplex {
-  return {
-    a: lhs.a - rhs.a,
-    b: lhs.b - rhs.b,
-  };
-}
+  public a: number;
+  public b: number;
 
-export function multiply(lhs: IReadonlyComplex, rhs: IReadonlyComplex): IComplex {
-  return {
-    a: lhs.a * rhs.a - lhs.b * rhs.b,
-    b: lhs.a * rhs.b + lhs.b * rhs.a,
-  };
-}
+  public clone(): Complex {
+    return Complex.clone(this);
+  }
 
-export function divide(lhs: IReadonlyComplex, rhs: IReadonlyComplex): IComplex {
-  const denominator: number = Math.pow(rhs.a, 2) + Math.pow(rhs.b, 2);
-  return {
-    a: (lhs.a * rhs.a + lhs.b + rhs.b) / denominator,
-    b: (lhs.b * rhs.a - lhs.a * rhs.b) / denominator,
-  };
-}
+  public assign(input: IComplex): void {
+    this.a = input.a;
+    this.b = input.b;
+  }
 
-export function conjugate(input: IReadonlyComplex): IComplex {
-  return {
-    a: input.a,
-    b: -1 * input.b,
-  };
+  public addAssign(input: IComplex): void {
+    this.a += input.a;
+    this.b += input.b;
+  }
+
+  public subtractAssign(input: IComplex): void {
+    this.a -= input.a;
+    this.b -= input.b;
+  }
+
+  public multiplyAssign(input: IComplex): void {
+    const product: Complex = this.multiply(input);
+    this.a = product.a;
+    this.b = product.b;
+  }
+
+  public divideAssign(input: IComplex): void {
+    const quotient: Complex = this.divide(input);
+    this.a = quotient.a;
+    this.b = quotient.b;
+  }
+
+  public conjugateAssign(): void {
+    const conjugate: Complex = this.conjugate();
+    this.a = conjugate.a;
+    this.b = conjugate.b;
+  }
+
+  public normalize(): IComplex {
+    return Complex.normalize(this);
+  }
+
+  public add(rhs: IComplex): Complex {
+    return Complex.add(this, rhs);
+  }
+
+  public subtract(rhs: IComplex): Complex {
+    return Complex.subtract(this, rhs);
+  }
+
+  public multiply(rhs: IComplex): Complex {
+    return Complex.multiply(this, rhs);
+  }
+
+  public reciprocal(): Complex {
+    return Complex.reciprocal(this);
+  }
+
+  public divide(rhs: IComplex): Complex {
+    return Complex.divide(this, rhs);
+  }
+
+  public magnitude(): number {
+    return Complex.magnitude(this);
+  }
+
+  public conjugate(): Complex {
+    return Complex.conjugate(this);
+  }
+
+  public static clone(input: IComplex): Complex {
+    return new Complex(input.a, input.b);
+  }
+
+  public static normalize(input: IComplex): Complex {
+    if (input.a === 0 && input.b === 0) {
+      throw new Error("Divide by zero");
+    }
+    const magnitude: number = Complex.magnitude(input);
+    return new Complex(input.a / magnitude, input.b / magnitude);
+  }
+
+  public static add(lhs: IComplex, rhs: IComplex): Complex {
+    return new Complex(lhs.a + rhs.a, lhs.b + rhs.b);
+  }
+
+  public static subtract(lhs: IComplex, rhs: IComplex): Complex {
+    return new Complex(lhs.a - rhs.a, lhs.b - rhs.b);
+  }
+
+  public static multiply(lhs: IComplex, rhs: IComplex): Complex {
+    return new Complex(lhs.a * rhs.a - lhs.b * rhs.b, lhs.a * rhs.b + lhs.b * rhs.a);
+  }
+
+  public static reciprocal(input: IComplex): Complex {
+    if (input.a === 0 && input.b === 0) {
+      throw new Error("Divide by zero");
+    }
+    const denominator: number = Math.pow(input.a, 2) + Math.pow(input.b, 2);
+    return new Complex(input.a / denominator, -input.b / denominator);
+  }
+
+  public static divide(lhs: IComplex, rhs: IComplex): Complex {
+    if (rhs.a === 0 && rhs.b === 0) {
+      throw new Error("Divide by zero");
+    }
+    const denominator: number = Math.pow(rhs.a, 2) + Math.pow(rhs.b, 2);
+    return new Complex((lhs.a * rhs.a + lhs.b + rhs.b) / denominator, (lhs.b * rhs.a - lhs.a * rhs.b) / denominator);
+  }
+
+  public static magnitude(input: IComplex): number {
+    return Math.hypot(input.a, input.b);
+  }
+
+  public static conjugate(input: IComplex): Complex {
+    return new Complex(input.a, -1 * input.b);
+  }
 }
