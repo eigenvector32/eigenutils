@@ -1,6 +1,8 @@
 // Copyright (c) 2026 Matthew Owen
 // Distributed under MIT license
 
+// Having a fixed sized matrix with a hard coded list of columns and rows is so much more effecient than a generic 
+// nxm matrix class built using arrays that it is worth having this implementation.
 export interface IReadonlyMatrix3x3 {
   // First row, first column
   readonly m11: number;

@@ -3,13 +3,15 @@
 
 import { IComplex, isIComplex, Complex } from "./IComplex";
 import { ComplexMatrix } from "./IComplexMatrix";
-import { ComplexRowVector, IComplexRowVector } from "./IComplexRowVector";
+import { ComplexVector, IComplexVector } from "./IComplexVector";
 
-export interface IComplexVector {
+// Most of the implementations for a row vector are the same as a column vector. However, having the compiler type check that
+// a row vs column error has been made is worth the duplication. Also, there are occasionally subtle differences in usage.
+export interface IComplexRowVector {
   components: IComplex[];
 }
 
-export function isIComplexVector(input: any): input is IComplexVector {
+export function isIComplexRowVector(input: any): input is IComplexRowVector {
   if (input === null || input === undefined || !Array.isArray(input.components)) {
     return false;
   }
@@ -21,7 +23,7 @@ export function isIComplexVector(input: any): input is IComplexVector {
   return true;
 }
 
-export class ComplexVector implements IComplexVector {
+export class ComplexRowVector implements IComplexRowVector {
   constructor(length: number, value?: IComplex);
   constructor(input: IComplex[]);
   constructor(input: number | IComplex[], value?: IComplex) {
@@ -43,55 +45,51 @@ export class ComplexVector implements IComplexVector {
 
   public components: IComplex[];
 
-  public clone(): ComplexVector {
-    return ComplexVector.clone(this);
+  public clone(): ComplexRowVector {
+    return ComplexRowVector.clone(this);
   }
 
   public magnitude(): number {
-    return ComplexVector.magnitude(this);
+    return ComplexRowVector.magnitude(this);
   }
 
-  public scale(scalar: number): ComplexVector {
-    return ComplexVector.scale(scalar, this);
+  public scale(scalar: number): ComplexRowVector {
+    return ComplexRowVector.scale(scalar, this);
   }
 
-  public normalize(): ComplexVector {
-    return ComplexVector.normalize(this);
+  public normalize(): ComplexRowVector {
+    return ComplexRowVector.normalize(this);
   }
 
-  public conjugate(): ComplexVector {
-    return ComplexVector.conjugate(this);
+  public conjugate(): ComplexRowVector {
+    return ComplexRowVector.conjugate(this);
   }
 
-  public transpose(): ComplexRowVector {
-    return ComplexVector.transpose(this);
+  public transpose(): ComplexVector {
+    return ComplexRowVector.transpose(this);
   }
 
-  public hermitianTranspose(): ComplexRowVector {
-    return ComplexVector.hermitianTranspose(this);
+  public hermitianTranspose(): ComplexVector {
+    return ComplexRowVector.hermitianTranspose(this);
   }
 
   public dotProduct(rhs: IComplexVector): Complex {
-    return ComplexVector.dotProduct(this, rhs);
+    return ComplexRowVector.dotProduct(this, rhs);
   }
 
   public hermitianInnerProduct(rhs: IComplexVector): Complex {
-    return ComplexVector.hermitianInnerProduct(this, rhs);
+    return ComplexRowVector.hermitianInnerProduct(this, rhs);
   }
 
   public outerProduct(rhs: IComplexRowVector): ComplexMatrix {
-    return ComplexVector.outerProduct(this, rhs);
+    return ComplexRowVector.outerProduct(this, rhs);
   }
 
-  public tensorProduct(rhs: IComplexVector): ComplexVector {
-    return ComplexVector.tensorProduct(this, rhs);
+  public static clone(input: IComplexRowVector): ComplexRowVector {
+    return new ComplexRowVector(input.components);
   }
 
-  public static clone(input: IComplexVector): ComplexVector {
-    return new ComplexVector(input.components);
-  }
-
-  public static magnitude(input: IComplexVector): number {
+  public static magnitude(input: IComplexRowVector): number {
     if (input.components.length === 0) {
       return 0;
     }
@@ -103,11 +101,11 @@ export class ComplexVector implements IComplexVector {
     return Math.sqrt(retVal);
   }
 
-  public static scale(scalar: number | IComplex, input: IComplexVector): ComplexVector {
+  public static scale(scalar: number | IComplex, input: IComplexRowVector): ComplexRowVector {
     if (input.components.length === 0) {
-      return new ComplexVector(0);
+      return new ComplexRowVector(0);
     }
-    const retVal: ComplexVector = new ComplexVector(input.components.length);
+    const retVal: ComplexRowVector = new ComplexRowVector(input.components.length);
     for (let i: number = 0; i < input.components.length; i++) {
       const component: IComplex = retVal.components[i];
       if (typeof scalar === "number") {
@@ -120,32 +118,32 @@ export class ComplexVector implements IComplexVector {
     return retVal;
   }
 
-  public static normalize(input: IComplexVector): ComplexVector {
-    const magnitude: number = ComplexVector.magnitude(input);
+  public static normalize(input: IComplexRowVector): ComplexRowVector {
+    const magnitude: number = ComplexRowVector.magnitude(input);
     if (magnitude === 0) {
-      return new ComplexVector(input.components.length);
+      return new ComplexRowVector(input.components.length);
     }
     const scalar: number = 1 / magnitude;
-    return ComplexVector.scale(scalar, input);
+    return ComplexRowVector.scale(scalar, input);
   }
 
-  public static conjugate(input: IComplexVector): ComplexVector {
-    if (input.components.length === 0) {
-      return new ComplexVector(0);
+  public static conjugate(lhs: IComplexRowVector): ComplexRowVector {
+    if (lhs.components.length === 0) {
+      return new ComplexRowVector(0);
     }
-    const retVal = new ComplexVector(input.components.length);
-    for (let i: number = 0; i < input.components.length; i++) {
-      retVal.components[i] = Complex.conjugate(input.components[i]);
+    const retVal = new ComplexRowVector(lhs.components.length);
+    for (let i: number = 0; i < lhs.components.length; i++) {
+      retVal.components[i] = Complex.conjugate(lhs.components[i]);
     }
     return retVal;
   }
 
-  public static transpose(input: IComplexVector): ComplexRowVector {
-    return new ComplexRowVector(input.components);
+  public static transpose(input: IComplexRowVector): ComplexVector {
+    return new ComplexVector(input.components);
   }
 
-  public static hermitianTranspose(input: IComplexVector): ComplexRowVector {
-    const conjugate: ComplexVector = ComplexVector.conjugate(input);
+  public static hermitianTranspose(input: IComplexRowVector): ComplexVector {
+    const conjugate: ComplexRowVector = ComplexRowVector.conjugate(input);
     return conjugate.transpose();
   }
 
@@ -160,12 +158,16 @@ export class ComplexVector implements IComplexVector {
     return retVal;
   }
 
-  public static hermitianInnerProduct(lhs: IComplexVector, rhs: IComplexVector): Complex {
+  public static hermitianInnerProduct(lhs: IComplexRowVector, rhs: IComplexVector): Complex {
     if (lhs.components.length !== rhs.components.length) {
       throw new Error("Vectors are not of equal size");
     }
-    const transpose: ComplexRowVector = ComplexVector.transpose(lhs);
-    return ComplexRowVector.hermitianInnerProduct(transpose, rhs);
+    const retVal: Complex = new Complex(0, 0);
+    for (let i: number = 0; i < lhs.components.length; i++) {
+      const lhsConjugate: Complex = Complex.conjugate(lhs.components[i]);
+      retVal.addAssign(Complex.multiply(lhsConjugate, rhs.components[i]));
+    }
+    return retVal;
   }
 
   public static outerProduct(lhs: IComplexVector, rhs: IComplexRowVector): ComplexMatrix {
@@ -175,20 +177,7 @@ export class ComplexVector implements IComplexVector {
         retVal.components[i][j] = Complex.multiply(lhs.components[i], rhs.components[j]);
       }
     }
-    return retVal;
-  }
 
-  public static tensorProduct(lhs: IComplexVector, rhs: IComplexVector): ComplexVector {
-    if (lhs.components.length === 0 || rhs.components.length === 0) {
-      return new ComplexVector(0);
-    }
-    const retVal: ComplexVector = new ComplexVector(lhs.components.length * rhs.components.length);
-    for (let i: number = 0; i < lhs.components.length; i++) {
-      for (let j: number = 0; j < rhs.components.length; j++) {
-        const index: number = j + i * rhs.components.length;
-        retVal.components[index] = Complex.multiply(lhs.components[i], rhs.components[j]);
-      }
-    }
     return retVal;
   }
 }

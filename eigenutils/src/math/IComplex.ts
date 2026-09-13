@@ -63,15 +63,15 @@ export class Complex implements IComplex {
     return Complex.normalize(this);
   }
 
-  public add(rhs: IComplex): Complex {
+  public add(rhs: number | IComplex): Complex {
     return Complex.add(this, rhs);
   }
 
-  public subtract(rhs: IComplex): Complex {
+  public subtract(rhs: number | IComplex): Complex {
     return Complex.subtract(this, rhs);
   }
 
-  public multiply(rhs: IComplex): Complex {
+  public multiply(rhs: number | IComplex): Complex {
     return Complex.multiply(this, rhs);
   }
 
@@ -79,8 +79,8 @@ export class Complex implements IComplex {
     return Complex.reciprocal(this);
   }
 
-  public divide(rhs: IComplex): Complex {
-    return Complex.divide(this, rhs);
+  public divide(denominator: number | IComplex): Complex {
+    return Complex.divide(this, denominator);
   }
 
   public magnitude(): number {
@@ -103,15 +103,33 @@ export class Complex implements IComplex {
     return new Complex(input.a / magnitude, input.b / magnitude);
   }
 
-  public static add(lhs: IComplex, rhs: IComplex): Complex {
+  public static add(lhs: number | IComplex, rhs: number | IComplex) {
+    if (typeof lhs === "number") {
+      lhs = new Complex(lhs, 0);
+    }
+    if (typeof rhs === "number") {
+      rhs = new Complex(rhs, 0);
+    }
     return new Complex(lhs.a + rhs.a, lhs.b + rhs.b);
   }
 
-  public static subtract(lhs: IComplex, rhs: IComplex): Complex {
+  public static subtract(lhs: number | IComplex, rhs: number | IComplex): Complex {
+    if (typeof lhs === "number") {
+      lhs = new Complex(lhs, 0);
+    }
+    if (typeof rhs === "number") {
+      rhs = new Complex(rhs, 0);
+    }
     return new Complex(lhs.a - rhs.a, lhs.b - rhs.b);
   }
 
-  public static multiply(lhs: IComplex, rhs: IComplex): Complex {
+  public static multiply(lhs: number | IComplex, rhs: number | IComplex): Complex {
+    if (typeof lhs === "number") {
+      lhs = new Complex(lhs, 0);
+    }
+    if (typeof rhs === "number") {
+      rhs = new Complex(rhs, 0);
+    }
     return new Complex(lhs.a * rhs.a - lhs.b * rhs.b, lhs.a * rhs.b + lhs.b * rhs.a);
   }
 
@@ -123,12 +141,18 @@ export class Complex implements IComplex {
     return new Complex(input.a / denominator, -input.b / denominator);
   }
 
-  public static divide(lhs: IComplex, rhs: IComplex): Complex {
-    if (rhs.a === 0 && rhs.b === 0) {
+  public static divide(numerator: number | IComplex, denominator: number | IComplex): Complex {
+    if (typeof numerator === "number") {
+      numerator = new Complex(numerator, 0);
+    }
+    if (typeof denominator === "number") {
+      denominator = new Complex(denominator, 0);
+    }
+    if (denominator.a === 0 && denominator.b === 0) {
       throw new Error("Divide by zero");
     }
-    const denominator: number = Math.pow(rhs.a, 2) + Math.pow(rhs.b, 2);
-    return new Complex((lhs.a * rhs.a + lhs.b + rhs.b) / denominator, (lhs.b * rhs.a - lhs.a * rhs.b) / denominator);
+    const d: number = Math.pow(denominator.a, 2) + Math.pow(denominator.b, 2);
+    return new Complex((numerator.a * denominator.a + numerator.b + denominator.b) / d, (numerator.b * denominator.a - numerator.a * denominator.b) / d);
   }
 
   public static magnitude(input: IComplex): number {
