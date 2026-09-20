@@ -1,22 +1,26 @@
 // Copyright (c) 2026 Matthew Owen
 // Distributed under MIT license
 
-import { ISRGB, ISRGBSymbol } from "./ISRGB";
-
-export const ISRGBASymbol: unique symbol = Symbol.for("eigenutils.color.ISRGBA");
+import { ISRGB } from "./ISRGB";
 
 // Valid alpha channel values are in the range [0,255].
 // Values outside that range may exist when converting between spaces larger than RGB.
 export interface ISRGBA extends ISRGB {
-  [ISRGBASymbol]: true;
   readonly a: number;
 }
 
 export function isISRGBA(input: any): input is ISRGBA {
-  if (input === null || input === undefined) {
+  if (
+    input === null ||
+    input === undefined ||
+    typeof input.r !== "number" ||
+    typeof input.g !== "number" ||
+    typeof input.b !== "number" ||
+    typeof input.a !== "number"
+  ) {
     return false;
   }
-  return input[ISRGBASymbol] === true;
+  return true;
 }
 
 export class SRGBA implements ISRGBA {
@@ -30,9 +34,6 @@ export class SRGBA implements ISRGBA {
   public toString(): string {
     return `SRGBA(${this.r},${this.g},${this.b},${this.a})`;
   }
-
-  public readonly [ISRGBSymbol] = true;
-  public readonly [ISRGBASymbol] = true;
 
   public readonly r: number;
   public readonly g: number;
