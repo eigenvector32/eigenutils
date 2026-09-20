@@ -3,7 +3,6 @@
 
 export const ISRGBSymbol: unique symbol = Symbol.for("eigenutils.color.ISRGB");
 
-
 // https://en.wikipedia.org/wiki/SRGB
 // Valid RGB colors require channels in the range [0,255].
 // Values outside that range may exist when converting between spaces larger than RGB.
@@ -37,4 +36,8 @@ export class SRGB implements ISRGB {
   public readonly r: number;
   public readonly g: number;
   public readonly b: number;
+
+  public static clone(input: ISRGB): SRGB {
+    return new SRGB(input.r, input.g, input.b);
+  }
 }

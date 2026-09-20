@@ -35,4 +35,8 @@ export class SRGBNormalized implements ISRGBNormalized {
   public readonly r: number;
   public readonly g: number;
   public readonly b: number;
+
+  public static clone(input: ISRGBNormalized): SRGBNormalized {
+    return new SRGBNormalized(input.r, input.g, input.b);
+  }
 }

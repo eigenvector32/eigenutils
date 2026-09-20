@@ -35,4 +35,8 @@ export class XYZ implements IXYZ {
   public readonly x: number;
   public readonly y: number;
   public readonly z: number;
+
+  public static clone(input: IXYZ): XYZ {
+    return new XYZ(input.x, input.y, input.z);
+  }
 }

@@ -38,4 +38,8 @@ export class SRGBA implements ISRGBA {
   public readonly g: number;
   public readonly b: number;
   public readonly a: number;
+
+  public static clone(input: ISRGBA): SRGBA {
+    return new SRGBA(input.r, input.g, input.b, input.a);
+  }
 }

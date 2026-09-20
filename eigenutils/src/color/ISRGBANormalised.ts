@@ -38,4 +38,8 @@ export class SRGBANormalized implements ISRGBANormalized {
   public readonly g: number;
   public readonly b: number;
   public readonly a: number;
+
+  public static clone(input: ISRGBANormalized): SRGBANormalized {
+    return new SRGBANormalized(input.r, input.g, input.b, input.a);
+  }
 }
