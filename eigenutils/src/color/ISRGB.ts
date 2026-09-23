@@ -32,7 +32,19 @@ export class SRGB implements ISRGB {
   public readonly g: number;
   public readonly b: number;
 
+  public clone(): SRGB {
+    return SRGB.clone(this);
+  }
+
+  public equals(rhs: ISRGB): boolean {
+    return SRGB.equals(this, rhs);
+  }
+
   public static clone(input: ISRGB): SRGB {
     return new SRGB(input.r, input.g, input.b);
+  }
+
+  public static equals(lhs: ISRGB, rhs: ISRGB): boolean {
+    return lhs.r === rhs.r && lhs.g === rhs.g && lhs.b === rhs.b;
   }
 }

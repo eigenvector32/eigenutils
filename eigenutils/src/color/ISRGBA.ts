@@ -40,7 +40,19 @@ export class SRGBA implements ISRGBA {
   public readonly b: number;
   public readonly a: number;
 
+  public clone(): SRGBA {
+    return SRGBA.clone(this);
+  }
+
+  public equals(rhs: ISRGBA): boolean {
+    return SRGBA.equals(this, rhs);
+  }
+
   public static clone(input: ISRGBA): SRGBA {
     return new SRGBA(input.r, input.g, input.b, input.a);
+  }
+
+  public static equals(lhs: ISRGBA, rhs: ISRGBA): boolean {
+    return lhs.r === rhs.r && lhs.g === rhs.g && lhs.b === rhs.b && lhs.a === rhs.a;
   }
 }

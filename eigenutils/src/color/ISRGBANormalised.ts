@@ -39,7 +39,19 @@ export class SRGBANormalized implements ISRGBANormalized {
   public readonly b: number;
   public readonly a: number;
 
+  public clone(): SRGBANormalized {
+    return SRGBANormalized.clone(this);
+  }
+
+  public equals(rhs: ISRGBANormalized): boolean {
+    return SRGBANormalized.equals(this, rhs);
+  }
+
   public static clone(input: ISRGBANormalized): SRGBANormalized {
     return new SRGBANormalized(input.r, input.g, input.b, input.a);
+  }
+
+  public static equals(lhs: ISRGBANormalized, rhs: ISRGBANormalized): boolean {
+    return lhs.r === rhs.r && lhs.g === rhs.g && lhs.b === rhs.b && lhs.a === rhs.a;
   }
 }

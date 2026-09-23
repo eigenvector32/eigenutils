@@ -31,7 +31,19 @@ export class XYZ implements IXYZ {
   public readonly y: number;
   public readonly z: number;
 
+  public clone(): XYZ {
+    return XYZ.clone(this);
+  }
+
+  public equals(rhs: IXYZ): boolean {
+    return XYZ.equals(this, rhs);
+  }
+
   public static clone(input: IXYZ): XYZ {
     return new XYZ(input.x, input.y, input.z);
+  }
+
+  public static equals(lhs: IXYZ, rhs: IXYZ): boolean {
+    return lhs.x === rhs.x && lhs.y === rhs.y && lhs.z === rhs.z;
   }
 }

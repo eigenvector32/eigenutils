@@ -31,7 +31,19 @@ export class SRGBNormalized implements ISRGBNormalized {
   public readonly g: number;
   public readonly b: number;
 
+  public clone(): SRGBNormalized {
+    return SRGBNormalized.clone(this);
+  }
+
+  public equals(rhs: ISRGBNormalized): boolean {
+    return SRGBNormalized.equals(this, rhs);
+  }
+
   public static clone(input: ISRGBNormalized): SRGBNormalized {
     return new SRGBNormalized(input.r, input.g, input.b);
+  }
+
+  public static equals(lhs: ISRGBNormalized, rhs: ISRGBNormalized): boolean {
+    return lhs.r === rhs.r && lhs.g === rhs.g && lhs.b === rhs.b;
   }
 }
