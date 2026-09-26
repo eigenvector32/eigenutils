@@ -109,6 +109,10 @@ export class ComplexMatrix implements IComplexMatrix {
     return ComplexMatrix.clone(this);
   }
 
+  public scale(scalar: number | IComplex): ComplexMatrix {
+    return ComplexMatrix.scale(scalar, this);
+  }
+
   public conjugate(): ComplexMatrix {
     return ComplexMatrix.conjugate(this);
   }
@@ -135,6 +139,14 @@ export class ComplexMatrix implements IComplexMatrix {
 
   public rowVectorProduct(rhs: IComplexRowVector): ComplexRowVector {
     return ComplexMatrix.rowVectorProduct(this, rhs);
+  }
+
+  public convertColumnToVector(column: number): ComplexVector {
+    return ComplexMatrix.convertColumnToVector(this, column);
+  }
+
+  public convertRowToVector(row: number): ComplexRowVector {
+    return ComplexMatrix.convertRowToVector(this, row);
   }
 
   public static clone(input: IComplexMatrix): ComplexMatrix {
@@ -243,5 +255,23 @@ export class ComplexMatrix implements IComplexMatrix {
       }
     }
     return retVal;
+  }
+
+  public static convertColumnToVector(input: IComplexMatrix, column: number): ComplexVector {
+    if (column < 0 || column >= input.columns) {
+      throw new Error(`Invalid column ${column} for matrix with ${input.columns}`);
+    }
+    return new ComplexVector(input.components[column]);
+  }
+
+  public static convertRowToVector(input: IComplexMatrix, row: number): ComplexRowVector {
+    if (row < 0 || row >= input.rows) {
+      throw new Error(`Invalid row ${row} for matrix with ${input.rows}`);
+    }
+    const retVal: IComplex[] = new Array<IComplex>(input.columns);
+    for (let i: number = 0; i < input.columns; i++) {
+      retVal[i] = input.components[row][i];
+    }
+    return new ComplexRowVector(retVal);
   }
 }
