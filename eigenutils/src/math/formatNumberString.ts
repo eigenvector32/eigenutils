@@ -1,3 +1,6 @@
+// Copyright (c) 2026 Matthew Owen
+// Distributed under MIT license
+
 import { IComplex } from "./IComplex";
 import { IComplexMatrix } from "./IComplexMatrix";
 import { IComplexVector } from "./IComplexVector";
@@ -86,7 +89,7 @@ export function formatComplexNumber(input: IComplex, fractionDigits: number | nu
     return real;
   }
   let complex: string = "";
-  if (Math.abs(input.b) - 1 < epsilon) {
+  if (Math.abs(Math.abs(input.b) - 1) < epsilon) {
     if (input.b < 0) {
       complex = "-i";
     } else {

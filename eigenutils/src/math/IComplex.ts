@@ -91,6 +91,15 @@ export class Complex implements IComplex {
     return Complex.conjugate(this);
   }
 
+  public integerPower(power: number): Complex {
+    return Complex.integerPower(this, power);
+  }
+
+  public integerPowerAssign(power: number): void {
+    const result: Complex = this.integerPower(power);
+    this.assign(result);
+  }
+
   public static clone(input: IComplex): Complex {
     return new Complex(input.a, input.b);
   }
@@ -152,7 +161,7 @@ export class Complex implements IComplex {
       throw new Error("Divide by zero");
     }
     const d: number = Math.pow(denominator.a, 2) + Math.pow(denominator.b, 2);
-    return new Complex((numerator.a * denominator.a + numerator.b + denominator.b) / d, (numerator.b * denominator.a - numerator.a * denominator.b) / d);
+    return new Complex((numerator.a * denominator.a + numerator.b * denominator.b) / d, (numerator.b * denominator.a - numerator.a * denominator.b) / d);
   }
 
   public static magnitude(input: IComplex): number {
@@ -161,5 +170,19 @@ export class Complex implements IComplex {
 
   public static conjugate(input: IComplex): Complex {
     return new Complex(input.a, -1 * input.b);
+  }
+
+  public static integerPower(input: IComplex, power: number): Complex {
+    if (power < 0) {
+      throw new Error(`integerPower is not defined for power ${power}`);
+    }
+    if (power === 0) {
+      return new Complex(1, 0);
+    }
+    const retVal: Complex = Complex.clone(input);
+    for (let i: number = 1; i < power; i++) {
+      retVal.multiplyAssign(input);
+    }
+    return retVal;
   }
 }

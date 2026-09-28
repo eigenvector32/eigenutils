@@ -109,6 +109,18 @@ export class ComplexMatrix implements IComplexMatrix {
     return ComplexMatrix.clone(this);
   }
 
+  public assign(rhs: IComplexMatrix): void {
+    if (this.rows !== rhs.rows || this.columns !== rhs.columns) {
+      throw new Error(`Dimensions do not match between ${this.rows}x${this.columns} vs ${rhs.rows}x${rhs.columns}`);
+    }
+    for (let i: number = 0; i < this.rows; i++) {
+      for (let j: number = 0; j < this.columns; j++) {
+        this.components[i][j].a = rhs.components[i][j].a;
+        this.components[i][j].b = rhs.components[i][j].b;
+      }
+    }
+  }
+
   public scale(scalar: number | IComplex): ComplexMatrix {
     return ComplexMatrix.scale(scalar, this);
   }
@@ -129,8 +141,27 @@ export class ComplexMatrix implements IComplexMatrix {
     return ComplexMatrix.add(this, rhs);
   }
 
+  public addAssign(rhs: IComplexMatrix): void {
+    const sum: ComplexMatrix = this.add(rhs);
+    this.assign(sum);
+  }
+
+  public subtract(rhs: IComplexMatrix): ComplexMatrix {
+    return ComplexMatrix.subtract(this, rhs);
+  }
+
+  public subtractAssign(rhs: IComplexMatrix): void {
+    const difference: ComplexMatrix = this.subtract(rhs);
+    this.assign(difference);
+  }
+
   public multiply(rhs: IComplexMatrix): ComplexMatrix {
     return ComplexMatrix.multiply(this, rhs);
+  }
+
+  public multiplyAssign(rhs: IComplexMatrix): void {
+    const product: ComplexMatrix = this.multiply(rhs);
+    this.assign(product);
   }
 
   public columnVectorProduct(rhs: IComplexVector): ComplexVector {
@@ -147,6 +178,22 @@ export class ComplexMatrix implements IComplexMatrix {
 
   public convertRowToVector(row: number): ComplexRowVector {
     return ComplexMatrix.convertRowToVector(this, row);
+  }
+
+  public trace(): Complex {
+    return ComplexMatrix.trace(this);
+  }
+
+  public commutator(rhs: IComplexMatrix): ComplexMatrix {
+    return ComplexMatrix.commutator(this, rhs);
+  }
+
+  public normalizeDensityMatrix(): ComplexMatrix | null {
+    return ComplexMatrix.normalizeDensityMatrix(this);
+  }
+
+  public integerPower(power: number): ComplexMatrix {
+    return ComplexMatrix.integerPower(this, power);
   }
 
   public static clone(input: IComplexMatrix): ComplexMatrix {
@@ -206,6 +253,19 @@ export class ComplexMatrix implements IComplexMatrix {
     for (let i: number = 0; i < retVal.rows; i++) {
       for (let j: number = 0; j < retVal.columns; j++) {
         retVal.components[i][j] = Complex.add(lhs.components[i][j], rhs.components[i][j]);
+      }
+    }
+    return retVal;
+  }
+
+  public static subtract(lhs: IComplexMatrix, rhs: IComplexMatrix): ComplexMatrix {
+    if (lhs.rows !== rhs.rows || lhs.columns !== rhs.columns) {
+      throw new Error(`Dimensions do not match between ${lhs.rows}x${lhs.columns} vs ${rhs.rows}x${rhs.columns}`);
+    }
+    const retVal: ComplexMatrix = new ComplexMatrix(lhs.columns, lhs.rows);
+    for (let i: number = 0; i < retVal.rows; i++) {
+      for (let j: number = 0; j < retVal.columns; j++) {
+        retVal.components[i][j] = Complex.subtract(lhs.components[i][j], rhs.components[i][j]);
       }
     }
     return retVal;
@@ -273,5 +333,83 @@ export class ComplexMatrix implements IComplexMatrix {
       retVal[i] = input.components[row][i];
     }
     return new ComplexRowVector(retVal);
+  }
+
+  public static trace(input: IComplexMatrix): Complex {
+    if (input.columns !== input.rows) {
+      throw new Error("Trace is only defined for a square matrix");
+    }
+    if (input.columns === 0 || input.rows === 0) {
+      return new Complex(0, 0);
+    }
+    const retVal: Complex = new Complex(0, 0);
+    for (let i: number = 0; i < input.columns; i++) {
+      retVal.addAssign(input.components[i][i]);
+    }
+    return retVal;
+  }
+
+  public static normalizeDensityMatrix(input: IComplexMatrix): ComplexMatrix | null {
+    const trace: Complex = ComplexMatrix.trace(input);
+    if (trace.a === 0 && trace.b === 0) {
+      return null;
+    }
+    return ComplexMatrix.scale(trace, input);
+  }
+
+  public static commutator(lhs: IComplexMatrix, rhs: IComplexMatrix): ComplexMatrix {
+    if (lhs.rows !== rhs.rows || lhs.columns !== rhs.columns) {
+      throw new Error(`Dimensions do not match between ${lhs.rows}x${lhs.columns} vs ${rhs.rows}x${rhs.columns}`);
+    }
+    const ab: ComplexMatrix = ComplexMatrix.multiply(lhs, rhs);
+    const ba: ComplexMatrix = ComplexMatrix.multiply(rhs, lhs);
+    return ab.subtract(ba);
+  }
+
+  public static linearCombination(scalars: IComplex[] | number[], matrices: IComplexMatrix[]): ComplexMatrix {
+    if (scalars.length !== matrices.length) {
+      throw new Error(`Length of scalars ${scalars.length} does not match length of matrices ${matrices.length}`);
+    }
+    if (matrices.length === 0) {
+      return new ComplexMatrix(0, 0);
+    }
+    const rows: number = matrices[0].rows;
+    const columns: number = matrices[0].columns;
+    const retVal: ComplexMatrix = new ComplexMatrix(rows, columns, new Complex(0, 0));
+    for (let i: number = 0; i < matrices.length; i++) {
+      if (matrices[i].rows !== rows || matrices[i].columns !== columns) {
+        throw new Error("Matrices must all be the same shape");
+      }
+      retVal.addAssign(ComplexMatrix.scale(scalars[i], matrices[i]));
+    }
+    return retVal;
+  }
+
+  public static squareIdentityMatrix(width: number): ComplexMatrix {
+    if (width < 1) {
+      throw new Error(`Invalid width ${width}`);
+    }
+    const retVal: ComplexMatrix = new ComplexMatrix(width, width, new Complex(0, 0));
+    for (let i: number = 0; i < width; i++) {
+      retVal.components[i][i] = new Complex(1, 0);
+    }
+    return retVal;
+  }
+
+  public static integerPower(input: IComplexMatrix, power: number): ComplexMatrix {
+    if (power < 0) {
+      throw new Error(`integerPower is not defined for power ${power}`);
+    }
+    if (input.rows !== input.columns) {
+      throw new Error("integerPower is only defined for square matrices");
+    }
+    if (power === 0) {
+      return this.squareIdentityMatrix(input.rows);
+    }
+    const retVal: ComplexMatrix = ComplexMatrix.clone(input);
+    for (let i: number = 1; i < power; i++) {
+      retVal.multiplyAssign(input);
+    }
+    return retVal;
   }
 }

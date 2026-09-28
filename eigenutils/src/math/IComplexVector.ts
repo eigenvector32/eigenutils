@@ -55,7 +55,7 @@ export class ComplexVector implements IComplexVector {
     return ComplexVector.scale(scalar, this);
   }
 
-  public normalize(): ComplexVector {
+  public normalize(): ComplexVector | null {
     return ComplexVector.normalize(this);
   }
 
@@ -120,10 +120,13 @@ export class ComplexVector implements IComplexVector {
     return retVal;
   }
 
-  public static normalize(input: IComplexVector): ComplexVector {
+  public static normalize(input: IComplexVector): ComplexVector | null {
     const magnitude: number = ComplexVector.magnitude(input);
     if (magnitude === 0) {
-      return new ComplexVector(input.components.length);
+      return null;
+    }
+    if (magnitude === 1) {
+      return ComplexVector.clone(input);
     }
     const scalar: number = 1 / magnitude;
     return ComplexVector.scale(scalar, input);
