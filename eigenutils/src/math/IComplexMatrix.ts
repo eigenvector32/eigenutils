@@ -188,10 +188,6 @@ export class ComplexMatrix implements IComplexMatrix {
     return ComplexMatrix.commutator(this, rhs);
   }
 
-  public normalizeDensityMatrix(): ComplexMatrix | null {
-    return ComplexMatrix.normalizeDensityMatrix(this);
-  }
-
   public integerPower(power: number): ComplexMatrix {
     return ComplexMatrix.integerPower(this, power);
   }
@@ -201,7 +197,7 @@ export class ComplexMatrix implements IComplexMatrix {
   }
 
   public static scale(scalar: number | IComplex, input: IComplexMatrix): ComplexMatrix {
-    if (input.components.length === 0) {
+    if (input.columns === 0 || input.rows === 0) {
       return new ComplexMatrix(0, 0);
     }
     const retVal: ComplexMatrix = new ComplexMatrix(input.rows, input.columns);
@@ -228,7 +224,7 @@ export class ComplexMatrix implements IComplexMatrix {
     const retVal: ComplexMatrix = new ComplexMatrix(input.columns, input.rows);
     for (let j = 0; j < input.columns; j++) {
       for (let i = 0; i < input.rows; i++) {
-        retVal.components[j][i] = input.components[i][j];
+        retVal.components[j][i] = Complex.clone(input.components[i][j]);
       }
     }
     return retVal;
@@ -313,6 +309,7 @@ export class ComplexMatrix implements IComplexMatrix {
       for (let i: number = 0; lhs.rows; i++) {
         sum.addAssign(Complex.multiply(lhs.components[i][j], rhs.components[i]));
       }
+      retVal.components[j] = sum;
     }
     return retVal;
   }
@@ -321,18 +318,18 @@ export class ComplexMatrix implements IComplexMatrix {
     if (column < 0 || column >= input.columns) {
       throw new Error(`Invalid column ${column} for matrix with ${input.columns}`);
     }
-    return new ComplexVector(input.components[column]);
+    const retVal: ComplexVector = new ComplexVector(input.rows);
+    for (let i: number = 0; i < input.rows; i++) {
+      retVal.components[i] = Complex.clone(input.components[i][column]);
+    }
+    return retVal;
   }
 
   public static convertRowToVector(input: IComplexMatrix, row: number): ComplexRowVector {
     if (row < 0 || row >= input.rows) {
       throw new Error(`Invalid row ${row} for matrix with ${input.rows}`);
     }
-    const retVal: IComplex[] = new Array<IComplex>(input.columns);
-    for (let i: number = 0; i < input.columns; i++) {
-      retVal[i] = input.components[row][i];
-    }
-    return new ComplexRowVector(retVal);
+    return new ComplexRowVector(input.components[row]);
   }
 
   public static trace(input: IComplexMatrix): Complex {
@@ -347,14 +344,6 @@ export class ComplexMatrix implements IComplexMatrix {
       retVal.addAssign(input.components[i][i]);
     }
     return retVal;
-  }
-
-  public static normalizeDensityMatrix(input: IComplexMatrix): ComplexMatrix | null {
-    const trace: Complex = ComplexMatrix.trace(input);
-    if (trace.a === 0 && trace.b === 0) {
-      return null;
-    }
-    return ComplexMatrix.scale(trace, input);
   }
 
   public static commutator(lhs: IComplexMatrix, rhs: IComplexMatrix): ComplexMatrix {

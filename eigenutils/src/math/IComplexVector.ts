@@ -51,7 +51,7 @@ export class ComplexVector implements IComplexVector {
     return ComplexVector.magnitude(this);
   }
 
-  public scale(scalar: number): ComplexVector {
+  public scale(scalar: number | IComplex): ComplexVector {
     return ComplexVector.scale(scalar, this);
   }
 
@@ -76,7 +76,7 @@ export class ComplexVector implements IComplexVector {
   }
 
   public hermitianInnerProduct(rhs: IComplexVector): Complex {
-    return ComplexVector.hermitianInnerProduct(this, rhs);
+    return ComplexVector.hermitianInnerProduct(this.transpose(), rhs);
   }
 
   public outerProduct(rhs: IComplexRowVector): ComplexMatrix {
@@ -126,6 +126,7 @@ export class ComplexVector implements IComplexVector {
       return null;
     }
     if (magnitude === 1) {
+      // Avoid floating point errors accumulating from the divide and multiply
       return ComplexVector.clone(input);
     }
     const scalar: number = 1 / magnitude;
@@ -152,7 +153,7 @@ export class ComplexVector implements IComplexVector {
     return conjugate.transpose();
   }
 
-  public static dotProduct(lhs: IComplexVector | IComplexRowVector, rhs: IComplexVector): Complex {
+  public static dotProduct(lhs: IComplexRowVector, rhs: IComplexVector): Complex {
     if (lhs.components.length !== rhs.components.length) {
       throw new Error("Vectors are not of equal size");
     }
@@ -163,19 +164,23 @@ export class ComplexVector implements IComplexVector {
     return retVal;
   }
 
-  public static hermitianInnerProduct(lhs: IComplexVector, rhs: IComplexVector): Complex {
+  public static hermitianInnerProduct(lhs: IComplexRowVector, rhs: IComplexVector): Complex {
     if (lhs.components.length !== rhs.components.length) {
       throw new Error("Vectors are not of equal size");
     }
-    const transpose: ComplexRowVector = ComplexVector.transpose(lhs);
-    return ComplexRowVector.hermitianInnerProduct(transpose, rhs);
+    const retVal: Complex = new Complex(0, 0);
+    for (let i: number = 0; i < lhs.components.length; i++) {
+      const conjugate: Complex = Complex.conjugate(lhs.components[i]);
+      retVal.addAssign(conjugate.multiply(rhs.components[i]));
+    }
+    return retVal;
   }
 
   public static outerProduct(lhs: IComplexVector, rhs: IComplexRowVector): ComplexMatrix {
     const retVal: ComplexMatrix = new ComplexMatrix(lhs.components.length, rhs.components.length);
     for (let i: number = 0; i < lhs.components.length; i++) {
       for (let j: number = 0; j < rhs.components.length; j++) {
-        retVal.components[i][j] = Complex.multiply(lhs.components[i], rhs.components[j]);
+        retVal.components[i][j] = Complex.multiply(lhs.components[i], Complex.conjugate(rhs.components[j]));
       }
     }
     return retVal;

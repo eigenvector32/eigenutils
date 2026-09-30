@@ -15,49 +15,49 @@ export function getGellMann(a: number): ComplexMatrix {
       return new ComplexMatrix([
         [new Complex(0, 0), new Complex(1, 0), new Complex(0, 0)],
         [new Complex(1, 0), new Complex(0, 0), new Complex(0, 0)],
-        [new Complex(0, 0), new Complex(0, 0), new Complex(0, 0)],
+        [new Complex(0, 0), new Complex(0, 0), new Complex(0, 0)]
       ]);
     case 2:
       return new ComplexMatrix([
         [new Complex(0, 0), new Complex(0, -1), new Complex(0, 0)],
         [new Complex(0, 1), new Complex(0, 0), new Complex(0, 0)],
-        [new Complex(0, 0), new Complex(0, 0), new Complex(0, 0)],
+        [new Complex(0, 0), new Complex(0, 0), new Complex(0, 0)]
       ]);
     case 3:
       return new ComplexMatrix([
         [new Complex(1, 0), new Complex(0, 0), new Complex(0, 0)],
         [new Complex(0, 0), new Complex(-1, 0), new Complex(0, 0)],
-        [new Complex(0, 0), new Complex(0, 0), new Complex(0, 0)],
+        [new Complex(0, 0), new Complex(0, 0), new Complex(0, 0)]
       ]);
     case 4:
       return new ComplexMatrix([
         [new Complex(0, 0), new Complex(0, 0), new Complex(1, 0)],
         [new Complex(0, 0), new Complex(0, 0), new Complex(0, 0)],
-        [new Complex(1, 0), new Complex(0, 0), new Complex(0, 0)],
+        [new Complex(1, 0), new Complex(0, 0), new Complex(0, 0)]
       ]);
     case 5:
       return new ComplexMatrix([
         [new Complex(0, 0), new Complex(0, 0), new Complex(0, -1)],
         [new Complex(0, 0), new Complex(0, 0), new Complex(0, 0)],
-        [new Complex(0, 1), new Complex(0, 0), new Complex(0, 0)],
+        [new Complex(0, 1), new Complex(0, 0), new Complex(0, 0)]
       ]);
     case 6:
       return new ComplexMatrix([
         [new Complex(0, 0), new Complex(0, 0), new Complex(0, 0)],
         [new Complex(0, 0), new Complex(0, 0), new Complex(1, 0)],
-        [new Complex(0, 0), new Complex(1, 0), new Complex(0, 0)],
+        [new Complex(0, 0), new Complex(1, 0), new Complex(0, 0)]
       ]);
     case 7:
       return new ComplexMatrix([
         [new Complex(0, 0), new Complex(0, 0), new Complex(0, 0)],
         [new Complex(0, 0), new Complex(0, 0), new Complex(0, -1)],
-        [new Complex(0, 0), new Complex(0, 1), new Complex(0, 0)],
+        [new Complex(0, 0), new Complex(0, 1), new Complex(0, 0)]
       ]);
     case 8:
       return new ComplexMatrix([
         [new Complex(1 / Math.sqrt(3), 0), new Complex(0, 0), new Complex(0, 0)],
         [new Complex(0, 0), new Complex(1 / Math.sqrt(3), 0), new Complex(0, 0)],
-        [new Complex(0, 0), new Complex(0, 0), new Complex(-2 / Math.sqrt(3), 0)],
+        [new Complex(0, 0), new Complex(0, 0), new Complex(-2 / Math.sqrt(3), 0)]
       ]);
     default:
       throw new Error(`Unexpected index ${a}`);
@@ -173,7 +173,6 @@ export function gluonAbsorbsGluon(ga: number[], gb: number[]): number[] {
   for (let c: number = 0; c < 8; c++) {
     for (let b: number = 0; b < 8; b++) {
       for (let a: number = 0; a < 8; a++) {
-        const structureConstant: number = getSU3StructureConstant(a + 1, b + 1, c + 1);
         retVal[c] += getSU3StructureConstant(a + 1, b + 1, c + 1) * ga[a] * gb[b];
       }
     }
@@ -198,4 +197,12 @@ export function matrixExponential(G: IComplexMatrix, scalar: IComplex, terms: nu
     retVal.addAssign(termG.scale(termScalar));
   }
   return retVal;
+}
+
+export function normalizeDensityMatrix(input: IComplexMatrix): ComplexMatrix | null {
+  const trace: Complex = ComplexMatrix.trace(input);
+  if (trace.a === 0 && trace.b === 0) {
+    return null;
+  }
+  return ComplexMatrix.scale(trace, input);
 }

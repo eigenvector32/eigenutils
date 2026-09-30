@@ -53,11 +53,11 @@ export class ComplexRowVector implements IComplexRowVector {
     return ComplexRowVector.magnitude(this);
   }
 
-  public scale(scalar: number): ComplexRowVector {
+  public scale(scalar: number | IComplex): ComplexRowVector {
     return ComplexRowVector.scale(scalar, this);
   }
 
-  public normalize(): ComplexRowVector {
+  public normalize(): ComplexRowVector | null {
     return ComplexRowVector.normalize(this);
   }
 
@@ -90,52 +90,19 @@ export class ComplexRowVector implements IComplexRowVector {
   }
 
   public static magnitude(input: IComplexRowVector): number {
-    if (input.components.length === 0) {
-      return 0;
-    }
-    let retVal: number = 0;
-    for (let i: number = 0; i < input.components.length; i++) {
-      const c: IComplex = input.components[i];
-      retVal += c.a * c.a + c.b * c.b;
-    }
-    return Math.sqrt(retVal);
+    return ComplexVector.magnitude(ComplexRowVector.transpose(input));
   }
 
   public static scale(scalar: number | IComplex, input: IComplexRowVector): ComplexRowVector {
-    if (input.components.length === 0) {
-      return new ComplexRowVector(0);
-    }
-    const retVal: ComplexRowVector = new ComplexRowVector(input.components.length);
-    for (let i: number = 0; i < input.components.length; i++) {
-      const component: IComplex = retVal.components[i];
-      if (typeof scalar === "number") {
-        component.a *= scalar;
-        component.b *= scalar;
-      } else if (isIComplex(scalar)) {
-        retVal.components[i] = Complex.multiply(scalar, component);
-      }
-    }
-    return retVal;
+    return ComplexVector.scale(scalar, ComplexRowVector.transpose(input)).transpose();
   }
 
-  public static normalize(input: IComplexRowVector): ComplexRowVector {
-    const magnitude: number = ComplexRowVector.magnitude(input);
-    if (magnitude === 0) {
-      return new ComplexRowVector(input.components.length);
-    }
-    const scalar: number = 1 / magnitude;
-    return ComplexRowVector.scale(scalar, input);
+  public static normalize(input: IComplexRowVector): ComplexRowVector | null {
+    return ComplexVector.normalize(ComplexRowVector.transpose(input))?.transpose() ?? null;
   }
 
-  public static conjugate(lhs: IComplexRowVector): ComplexRowVector {
-    if (lhs.components.length === 0) {
-      return new ComplexRowVector(0);
-    }
-    const retVal = new ComplexRowVector(lhs.components.length);
-    for (let i: number = 0; i < lhs.components.length; i++) {
-      retVal.components[i] = Complex.conjugate(lhs.components[i]);
-    }
-    return retVal;
+  public static conjugate(input: IComplexRowVector): ComplexRowVector {
+    return ComplexVector.conjugate(ComplexRowVector.transpose(input)).transpose();
   }
 
   public static transpose(input: IComplexRowVector): ComplexVector {
@@ -143,41 +110,29 @@ export class ComplexRowVector implements IComplexRowVector {
   }
 
   public static hermitianTranspose(input: IComplexRowVector): ComplexVector {
-    const conjugate: ComplexRowVector = ComplexRowVector.conjugate(input);
-    return conjugate.transpose();
+    return ComplexRowVector.transpose(input).conjugate();
   }
 
-  public static dotProduct(lhs: IComplexVector | IComplexRowVector, rhs: IComplexVector): Complex {
-    if (lhs.components.length !== rhs.components.length) {
-      throw new Error("Vectors are not of equal size");
-    }
-    const retVal: Complex = new Complex(0, 0);
-    for (let i: number = 0; i < lhs.components.length; i++) {
-      retVal.addAssign(Complex.multiply(lhs.components[i], rhs.components[i]));
-    }
-    return retVal;
+  public static dotProduct(lhs: IComplexRowVector, rhs: IComplexVector): Complex {
+    return ComplexVector.dotProduct(lhs, rhs);
   }
 
   public static hermitianInnerProduct(lhs: IComplexRowVector, rhs: IComplexVector): Complex {
-    if (lhs.components.length !== rhs.components.length) {
-      throw new Error("Vectors are not of equal size");
-    }
-    const retVal: Complex = new Complex(0, 0);
-    for (let i: number = 0; i < lhs.components.length; i++) {
-      const lhsConjugate: Complex = Complex.conjugate(lhs.components[i]);
-      retVal.addAssign(Complex.multiply(lhsConjugate, rhs.components[i]));
-    }
-    return retVal;
+    return ComplexVector.hermitianInnerProduct(lhs, rhs);
   }
 
   public static outerProduct(lhs: IComplexVector, rhs: IComplexRowVector): ComplexMatrix {
+    return ComplexVector.outerProduct(lhs, rhs);
+  }
+
+  // Note this is a rank 2 Tensor as compared to a rank 1 tensor resulting from two column vectors
+  public static tensorProduct(lhs: IComplexRowVector, rhs: IComplexRowVector): ComplexMatrix {
     const retVal: ComplexMatrix = new ComplexMatrix(lhs.components.length, rhs.components.length);
     for (let i: number = 0; i < lhs.components.length; i++) {
       for (let j: number = 0; j < rhs.components.length; j++) {
         retVal.components[i][j] = Complex.multiply(lhs.components[i], rhs.components[j]);
       }
     }
-
     return retVal;
   }
 }

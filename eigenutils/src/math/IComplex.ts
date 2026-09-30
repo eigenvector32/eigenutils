@@ -14,16 +14,7 @@ export function isIComplex(input: any): input is IComplex {
 }
 
 export class Complex implements IComplex {
-  constructor(a: number = 0, b: number = 0, floatingPointEpsilon: number | null = 0.000000001) {
-    // Floating point errors resulting in a number that is very close to -0 are regretably common in js
-    if (floatingPointEpsilon !== null) {
-      if (Math.abs(a) < floatingPointEpsilon) {
-        a = 0;
-      }
-      if (Math.abs(b) < floatingPointEpsilon) {
-        b = 0;
-      }
-    }
+  constructor(a: number = 0, b: number = 0) {
     this.a = a;
     this.b = b;
   }
@@ -170,10 +161,7 @@ export class Complex implements IComplex {
       throw new Error("Divide by zero");
     }
     const d: number = Math.pow(denominator.a, 2) + Math.pow(denominator.b, 2);
-    return new Complex(
-      (numerator.a * denominator.a + numerator.b * denominator.b) / d,
-      (numerator.b * denominator.a - numerator.a * denominator.b) / d,
-    );
+    return new Complex((numerator.a * denominator.a + numerator.b * denominator.b) / d, (numerator.b * denominator.a - numerator.a * denominator.b) / d);
   }
 
   public static magnitude(input: IComplex): number {
