@@ -15,49 +15,49 @@ export function getGellMann(a: number): ComplexMatrix {
       return new ComplexMatrix([
         [new Complex(0, 0), new Complex(1, 0), new Complex(0, 0)],
         [new Complex(1, 0), new Complex(0, 0), new Complex(0, 0)],
-        [new Complex(0, 0), new Complex(0, 0), new Complex(0, 0)]
+        [new Complex(0, 0), new Complex(0, 0), new Complex(0, 0)],
       ]);
     case 2:
       return new ComplexMatrix([
         [new Complex(0, 0), new Complex(0, -1), new Complex(0, 0)],
         [new Complex(0, 1), new Complex(0, 0), new Complex(0, 0)],
-        [new Complex(0, 0), new Complex(0, 0), new Complex(0, 0)]
+        [new Complex(0, 0), new Complex(0, 0), new Complex(0, 0)],
       ]);
     case 3:
       return new ComplexMatrix([
         [new Complex(1, 0), new Complex(0, 0), new Complex(0, 0)],
         [new Complex(0, 0), new Complex(-1, 0), new Complex(0, 0)],
-        [new Complex(0, 0), new Complex(0, 0), new Complex(0, 0)]
+        [new Complex(0, 0), new Complex(0, 0), new Complex(0, 0)],
       ]);
     case 4:
       return new ComplexMatrix([
         [new Complex(0, 0), new Complex(0, 0), new Complex(1, 0)],
         [new Complex(0, 0), new Complex(0, 0), new Complex(0, 0)],
-        [new Complex(1, 0), new Complex(0, 0), new Complex(0, 0)]
+        [new Complex(1, 0), new Complex(0, 0), new Complex(0, 0)],
       ]);
     case 5:
       return new ComplexMatrix([
         [new Complex(0, 0), new Complex(0, 0), new Complex(0, -1)],
         [new Complex(0, 0), new Complex(0, 0), new Complex(0, 0)],
-        [new Complex(0, 1), new Complex(0, 0), new Complex(0, 0)]
+        [new Complex(0, 1), new Complex(0, 0), new Complex(0, 0)],
       ]);
     case 6:
       return new ComplexMatrix([
         [new Complex(0, 0), new Complex(0, 0), new Complex(0, 0)],
         [new Complex(0, 0), new Complex(0, 0), new Complex(1, 0)],
-        [new Complex(0, 0), new Complex(1, 0), new Complex(0, 0)]
+        [new Complex(0, 0), new Complex(1, 0), new Complex(0, 0)],
       ]);
     case 7:
       return new ComplexMatrix([
         [new Complex(0, 0), new Complex(0, 0), new Complex(0, 0)],
         [new Complex(0, 0), new Complex(0, 0), new Complex(0, -1)],
-        [new Complex(0, 0), new Complex(0, 1), new Complex(0, 0)]
+        [new Complex(0, 0), new Complex(0, 1), new Complex(0, 0)],
       ]);
     case 8:
       return new ComplexMatrix([
         [new Complex(1 / Math.sqrt(3), 0), new Complex(0, 0), new Complex(0, 0)],
         [new Complex(0, 0), new Complex(1 / Math.sqrt(3), 0), new Complex(0, 0)],
-        [new Complex(0, 0), new Complex(0, 0), new Complex(-2 / Math.sqrt(3), 0)]
+        [new Complex(0, 0), new Complex(0, 0), new Complex(-2 / Math.sqrt(3), 0)],
       ]);
     default:
       throw new Error(`Unexpected index ${a}`);
@@ -65,10 +65,11 @@ export function getGellMann(a: number): ComplexMatrix {
 }
 
 // The index a is 1 based so must be 1-8
-export function getSU3Generator(a: number) {
+export function getSU3Generator(a: number): ComplexMatrix {
   return getGellMann(a).scale(0.5);
 }
 
+// Returns a 0 based array of the SU3 generators for the fundamental representation. So generator 2 == index 1
 export function getSU3Generators(): ComplexMatrix[] {
   const retVal: ComplexMatrix[] = new Array<ComplexMatrix>();
   for (let i: number = 0; i < 8; i++) {
@@ -77,19 +78,47 @@ export function getSU3Generators(): ComplexMatrix[] {
   return retVal;
 }
 
+// The index a is 1 based so must be 1-8
+// Depending on which reference one is looking at, these values could have an extra sign of -1
+// eg: the components can be either -i * f(abc) or i * f(abc). Set the sign argument to either
+// 1 or -1 depending on which convention is used.
+export function getSU3AdjointGenerator(a: number, sign: number = -1): ComplexMatrix {
+  if (a < 1 || a > 8) {
+    throw new Error(`Invalid index a ${a}`);
+  }
+  const scalar: Complex = new Complex(0, sign);
+  const retVal: ComplexMatrix = new ComplexMatrix(8, 8, new Complex(0, 0));
+  for (let b: number = 0; b < 8; b++) {
+    for (let c: number = 0; c < 8; c++) {
+      retVal.components[b][c] = scalar.multiply(getSU3StructureConstant(a, b + 1, c + 1));
+    }
+  }
+  return retVal;
+}
+
+// Returns a 0 based array of the SU3 generators for the adjoing representation. So generator 2 == index 1
+export function getSU3AdjointGenerators(sign: number = -1): ComplexMatrix[] {
+  const retVal: ComplexMatrix[] = new Array<ComplexMatrix>();
+  for (let i: number = 0; i < 8; i++) {
+    retVal[i] = getSU3AdjointGenerator(i + 1, sign);
+  }
+  return retVal;
+}
+
 // Return the structure constants for SU(3). Usually written f(abc)
 // The indices are 1 based so must be 1-8
-export function generateSU3StructureConstant(a: number, b: number, c: number): Complex {
-  const ta: ComplexMatrix = getGellMann(a);
-  const tb: ComplexMatrix = getGellMann(b);
-  const tc: ComplexMatrix = getGellMann(c);
+export function getSU3StructureConstant(a: number, b: number, c: number): number {
+  const ta: ComplexMatrix = getSU3Generator(a);
+  const tb: ComplexMatrix = getSU3Generator(b);
+  const tc: ComplexMatrix = getSU3Generator(c);
 
   const commutator: ComplexMatrix = ta.commutator(tb);
   const g: ComplexMatrix = commutator.multiply(tc);
   const trace: Complex = g.trace();
-  const factor: Complex = Complex.reciprocal(new Complex(0, 4));
+  const factor: Complex = new Complex(0, -2);
   const retVal: Complex = trace.multiply(factor);
-  return retVal;
+  // At this point retVal should be fully real with no complex component left
+  return retVal.a;
 }
 
 // Computes G|q> where G is the linear combination of the SU3 generators with g
@@ -128,6 +157,28 @@ export function quarkAbsorbsGluon(q: IComplexVector, g: number[], alpha: number,
 
   const operatorExponent: ComplexMatrix = matrixExponential(gluonOperator, ialpha, terms);
   return operatorExponent.columnVectorProduct(q);
+}
+
+export function gluonAbsorbsGluon(ga: number[], gb: number[]): number[] {
+  if (ga.length !== 8) {
+    throw new Error(`Invalid length for ga ${ga.length}`);
+  }
+  if (gb.length !== 8) {
+    throw new Error(`Invalid length for ga ${gb.length}`);
+  }
+  const retVal: number[] = new Array<number>(8);
+  for (let i: number = 0; i < 8; i++) {
+    retVal[i] = 0;
+  }
+  for (let c: number = 0; c < 8; c++) {
+    for (let b: number = 0; b < 8; b++) {
+      for (let a: number = 0; a < 8; a++) {
+        const structureConstant: number = getSU3StructureConstant(a + 1, b + 1, c + 1);
+        retVal[c] += getSU3StructureConstant(a + 1, b + 1, c + 1) * ga[a] * gb[b];
+      }
+    }
+  }
+  return retVal;
 }
 
 // Computes via a Taylor series expansion exp(scalar*G) where scalar is any complex number and G is any square complex matrix
