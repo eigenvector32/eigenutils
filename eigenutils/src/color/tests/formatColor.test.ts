@@ -12,7 +12,7 @@ const colorData: IRawTestColorData = rawColorDataNamed;
 
 describe("Tests for formatColor", () => {
   test("Verify test data version", () => {
-    expect(colorData.version).toBe("1.0.2");
+    expect(colorData.version).toBe("1.0.3");
   });
 
   test("ISRGBToHex", () => {
@@ -22,18 +22,18 @@ describe("Tests for formatColor", () => {
 
       const formatted: string = ISRGBToHex(color);
 
-      expect(formatted).toBe(rawColor.hexrgb);
+      expect(formatted).toBe(rawColor.hexrgb?.toLowerCase());
     });
   });
 
   test("ISRGBNormalizedToHex", () => {
     colorData.data.forEach((rawColor: IRawTestColorDataItem) => {
-      const srgb: number[] = parseArray(rawColor.rgbnormalized);
+      const srgb: number[] = parseArray(rawColor.normalizedrgb);
       const color: SRGBNormalized = new SRGBNormalized(srgb[0], srgb[1], srgb[2]);
 
       const formatted: string = ISRGBNormalizedToHex(color);
 
-      expect(formatted).toBe(rawColor.hexrgb);
+      expect(formatted).toBe(rawColor.hexrgb?.toLowerCase());
     });
   });
 });

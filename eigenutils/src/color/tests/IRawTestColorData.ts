@@ -8,28 +8,25 @@ export interface IRawTestColorData {
 
 export interface IRawTestColorDataItem {
   name?: string;
-  hexrgb: string;
-  adobergb: string;
-  ciexyy: string;
-  cmyk: string;
-  hpluv: string;
-  hsi: string;
-  hsl: string;
-  hsluv: string;
-  hsv: string;
-  hwb: string;
-  labd50: string;
-  labd65: string;
-  lch: string;
-  oklab: string;
-  oklch: string;
-  rgb: string;
-  rgbnormalized: string;
-  srgb: string;
-  xyzd50: string;
-  xyzd65: string;
-  yuv: string;
-  temperature: string;
+  hexrgb?: string;
+  rgb?: string;
+  normalizedrgb?: string;
+  xyzd50?: string;
+  xyzd65?: string;
+  xyyd50?: string;
+  xyyd65?: string;
+  labd50?: string;
+  labd65?: string;
+  lchd50?: string;
+  lchd65?: string;
+  luvd50?: string;
+  luvd65?: string;
+  lchuvd50?: string;
+  lchuvd65?: string;
+  cctd50?: string;
+  cctd65?: string;
+  dominantwavelengthd50?: string;
+  dominantwavelengthd65?: string;
 }
 
 export function parseArray(input?: string | null, expectedLength: number = 3): number[] {

@@ -8,11 +8,11 @@ import { xyzToTemperature } from "../converters/XYZTemperature";
 
 const colorData: IRawTestColorData = rawColorDataNamed;
 
-const signifigantDigits: number = 6;
+const signifigantDigits: number = 8;
 
 describe("Tests for XYZTemperature", () => {
   test("Verify test data version", () => {
-    expect(colorData.version).toBe("1.0.2");
+    expect(colorData.version).toBe("1.0.3");
   });
 
   test("xyzToTemperature", () => {
@@ -21,9 +21,8 @@ describe("Tests for XYZTemperature", () => {
       const xyz: XYZ = new XYZ(rawXYZ[0], rawXYZ[1], rawXYZ[2]);
       const temperature: number = xyzToTemperature(xyz);
 
-      const knownTemperature = Number(rawColor.temperature);
+      const knownTemperature = Number(rawColor.cctd65);
 
-      console.log(`${xyz.x},${xyz.y},${xyz.z}  => ${temperature}   LAB: ${rawColor.labd65}`);
       expect(temperature).toBeCloseTo(knownTemperature, signifigantDigits);
     });
   });

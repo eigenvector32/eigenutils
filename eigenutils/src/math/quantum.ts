@@ -5,6 +5,7 @@ import { integerFactorial } from "./factorial";
 import { IComplex, Complex } from "./IComplex";
 import { IComplexMatrix, ComplexMatrix } from "./IComplexMatrix";
 import { ComplexVector, IComplexVector } from "./IComplexVector";
+import { IVector, Vector } from "./IVector";
 
 // This uses the same rather frustrating convention in the existing literature where
 // the indices for the Gell-Mann matrices and generators of SU(3) and other such indices
@@ -122,16 +123,16 @@ export function getSU3StructureConstant(a: number, b: number, c: number): number
 }
 
 // Computes G|q> where G is the linear combination of the SU3 generators with g
-export function amplitudeOfQuarkAbsorbingGluon(q: IComplexVector, g: number[]): ComplexVector {
+export function amplitudeOfQuarkAbsorbingGluon(q: IComplexVector, g: IVector): ComplexVector {
   if (q.components.length !== 3) {
     throw new Error("Vector quark state must have length 3");
   }
-  if (g.length !== 8) {
+  if (g.components.length !== 8) {
     throw new Error("Vector gluon state must have length 8");
   }
 
   const generators: ComplexMatrix[] = getSU3Generators();
-  const gluonOperator: ComplexMatrix = ComplexMatrix.linearCombination(g, generators);
+  const gluonOperator: ComplexMatrix = ComplexMatrix.linearCombination(g.components, generators);
 
   const amplitude: ComplexVector = gluonOperator.columnVectorProduct(q);
   return amplitude;
@@ -139,11 +140,12 @@ export function amplitudeOfQuarkAbsorbingGluon(q: IComplexVector, g: number[]): 
 
 // Computes exp(i*alpha*G) * |q> where G is the linear combination of the SU3 generators with g
 // this must be done as a Taylor series so terms is how many terms of the Taylor series to compute
-export function quarkAbsorbsGluon(q: IComplexVector, g: number[], alpha: number, terms: number = 10): ComplexVector {
+// A return value of null only occurs when thhe aplitude of the interaction is zero
+export function quarkAbsorbsGluon(q: IComplexVector, g: IVector, alpha: number, terms: number = 10): ComplexVector | null {
   if (q.components.length !== 3) {
     throw new Error("Vector quark state must have length 3");
   }
-  if (g.length !== 8) {
+  if (g.components.length !== 8) {
     throw new Error("Vector gluon state must have length 8");
   }
   if (terms < 1) {
@@ -151,33 +153,50 @@ export function quarkAbsorbsGluon(q: IComplexVector, g: number[], alpha: number,
   }
 
   const generators: ComplexMatrix[] = getSU3Generators();
-  const gluonOperator: ComplexMatrix = ComplexMatrix.linearCombination(g, generators);
+  const gluonOperator: ComplexMatrix = ComplexMatrix.linearCombination(g.components, generators);
 
   const ialpha: Complex = new Complex(0, alpha);
 
   const operatorExponent: ComplexMatrix = matrixExponential(gluonOperator, ialpha, terms);
-  return operatorExponent.columnVectorProduct(q);
+  const retVal: ComplexVector = operatorExponent.columnVectorProduct(q);
+  return retVal.normalize();
 }
 
-export function gluonAbsorbsGluon(ga: number[], gb: number[]): number[] {
-  if (ga.length !== 8) {
-    throw new Error(`Invalid length for ga ${ga.length}`);
+// A return value of null only occurs when the interaction results in zero color rotation for that combination
+export function gluonAbsorbsGluon(ga: IVector, gb: IVector): Vector | null {
+  if (ga.components.length !== 8) {
+    throw new Error(`Invalid length for ga ${ga.components.length}`);
   }
-  if (gb.length !== 8) {
-    throw new Error(`Invalid length for ga ${gb.length}`);
+  if (gb.components.length !== 8) {
+    throw new Error(`Invalid length for ga ${gb.components.length}`);
   }
-  const retVal: number[] = new Array<number>(8);
-  for (let i: number = 0; i < 8; i++) {
-    retVal[i] = 0;
-  }
+  const retVal: Vector = new Vector(8, 0);
   for (let c: number = 0; c < 8; c++) {
     for (let b: number = 0; b < 8; b++) {
       for (let a: number = 0; a < 8; a++) {
-        retVal[c] += getSU3StructureConstant(a + 1, b + 1, c + 1) * ga[a] * gb[b];
+        retVal.components[c] += getSU3StructureConstant(a + 1, b + 1, c + 1) * ga.components[a] * gb.components[b];
       }
     }
   }
-  return retVal;
+  return retVal.normalize();
+}
+
+export function quarkEmitsGluon(quark: ComplexVector): void {
+  const t: ComplexMatrix[] = getSU3Generators();
+
+  // Compute coeficients
+  const c: ComplexVector[] = new Array<ComplexVector>(8);
+  for (let a: number = 0; a < 8; a++) {
+    c[a] = t[a].columnVectorProduct(quark);
+  }
+
+  const psi: ComplexVector = new ComplexVector(24, new Complex(0, 0));
+  for (let i: number = 0; i < 3; i++) {
+    for (let a: number = 0; a < 8; a++) {
+      psi.components[i + a * 3] = Complex.add(psi.components[i + a * 8], c[a].components[i]);
+    }
+  }
+  
 }
 
 // Computes via a Taylor series expansion exp(scalar*G) where scalar is any complex number and G is any square complex matrix

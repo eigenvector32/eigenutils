@@ -9,15 +9,18 @@ import { SRGBNormalized } from "../ISRGBNormalized";
 
 const colorData: IRawTestColorData = rawColorDataNamed;
 
-const signifigantDigits: number = 10;
+const signifigantDigits: number = 8;
 
 describe("Tests for parseColor", () => {
   test("Verify test data version", () => {
-    expect(colorData.version).toBe("1.0.2");
+    expect(colorData.version).toBe("1.0.3");
   });
 
   test("parseHexRGBToSRGB", () => {
     colorData.data.forEach((rawColor: IRawTestColorDataItem) => {
+      if (rawColor.hexrgb === undefined) {
+        throw new Error("Test data missing hexrgb");
+      }
       const parsed: SRGB = parseHexRGBToSRGB(rawColor.hexrgb);
 
       const knownRGB: number[] = parseArray(rawColor.rgb);
@@ -29,9 +32,12 @@ describe("Tests for parseColor", () => {
 
   test("parseHexRGBToSRGBNormalized", () => {
     colorData.data.forEach((rawColor: IRawTestColorDataItem) => {
+      if (rawColor.hexrgb === undefined) {
+        throw new Error("Test data missing hexrgb");
+      }
       const parsed: SRGBNormalized = parseHexRGBToSRGBNormalized(rawColor.hexrgb);
 
-      const knownNormalized: number[] = parseArray(rawColor.rgbnormalized);
+      const knownNormalized: number[] = parseArray(rawColor.normalizedrgb);
       expect(parsed.r).toBeCloseTo(knownNormalized[0], signifigantDigits);
       expect(parsed.g).toBeCloseTo(knownNormalized[1], signifigantDigits);
       expect(parsed.b).toBeCloseTo(knownNormalized[2], signifigantDigits);

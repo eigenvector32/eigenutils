@@ -99,19 +99,22 @@ export function xyzToTemperature(input: IXYZ): number {
   let matchingIndex: number = -1;
   for (let i: number = 0; i < uvtTable.length; i++) {
     di = vs - uvtTable[i].v - uvtTable[i].t * (us - uvtTable[i].u);
+    if (i === 0 && di < 0) {
+      // Color is too far into the blue to convert properly
+      break;
+    }
     if (i > 0 && ((di < 0.0 && dm >= 0.0) || (di >= 0.0 && dm < 0.0))) {
       matchingIndex = i;
       break; /* found lines bounding (us, vs) : i-1 and i */
     }
     dm = di;
   }
-  if (matchingIndex <= 0) {
-    // Color doesn't correspond to a valid temperature
+  if (matchingIndex < 0) {
+    // Color is too far into the red to convert properly
     return 0;
   }
   di = di / Math.sqrt(1.0 + uvtTable[matchingIndex].t * uvtTable[matchingIndex].t);
   dm = dm / Math.sqrt(1.0 + uvtTable[matchingIndex - 1].t * uvtTable[matchingIndex - 1].t);
   const p: number = dm / (dm - di);
-  console.log(`xyzToTemperature: matchingIndex=${matchingIndex}, us=${us}, vs=${vs}`);
   return 1.0 / linearInterpolate(p, reciprocalTemperature[matchingIndex - 1], reciprocalTemperature[matchingIndex]);
 }

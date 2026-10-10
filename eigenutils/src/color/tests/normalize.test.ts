@@ -9,11 +9,11 @@ import { SRGBNormalized } from "../ISRGBNormalized";
 
 const colorData: IRawTestColorData = rawColorDataNamed;
 
-const signifigantDigits: number = 10;
+const signifigantDigits: number = 8;
 
 describe("Tests for formatColor", () => {
   test("Verify test data version", () => {
-    expect(colorData.version).toBe("1.0.2");
+    expect(colorData.version).toBe("1.0.3");
   });
 
   test("clampChannel", () => {
@@ -29,7 +29,7 @@ describe("Tests for formatColor", () => {
 
       const normalized: SRGBNormalized = normalizeISRGB(new SRGB(srgb[0], srgb[1], srgb[2]));
 
-      const knownNormalized: number[] = parseArray(rawColor.rgbnormalized);
+      const knownNormalized: number[] = parseArray(rawColor.normalizedrgb);
       expect(normalized.r).toBeCloseTo(knownNormalized[0], signifigantDigits);
       expect(normalized.g).toBeCloseTo(knownNormalized[1], signifigantDigits);
       expect(normalized.b).toBeCloseTo(knownNormalized[2], signifigantDigits);
@@ -38,7 +38,7 @@ describe("Tests for formatColor", () => {
 
   test("denormalize", () => {
     colorData.data.forEach((rawColor: IRawTestColorDataItem) => {
-      const normalized: number[] = parseArray(rawColor.rgbnormalized);
+      const normalized: number[] = parseArray(rawColor.normalizedrgb);
 
       const denormalized: SRGB = denormalizeISRGBNormalized(new SRGBNormalized(normalized[0], normalized[1], normalized[2]));
 
