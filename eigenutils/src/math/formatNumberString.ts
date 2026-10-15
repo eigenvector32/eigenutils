@@ -51,7 +51,19 @@ export const wellKnownConstants: Map<number, string> = new Map<number, string>([
   [Math.E, "ⅇ"]
 ]);
 
-export function formatRealNumber(input: number, fractionDigits: number | null = null, epsilon: number = 0.000001): string {
+export function formatRealNumber(input: number | null | undefined, fractionDigits: number | null = null, epsilon: number = 0.000001): string {
+  if (input === null) {
+    return "null";
+  }
+  if (input === undefined) {
+    return "undefined";
+  }
+  if (isNaN(input)) {
+    return "NaN";
+  }
+  if (!isFinite(input)) {
+    return "infinite";
+  }
   if (Math.abs(input) < epsilon) {
     return "0";
   }
