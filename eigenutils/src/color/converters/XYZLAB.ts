@@ -16,7 +16,7 @@ function transformChannelXYZToLAB(i: number): number {
 }
 
 // http://www.brucelindbloom.com/index.html?Eqn_XYZ_to_Lab.html
-export function XYZToLAB(xyz: IXYZ, illuminant: StandardIlluminant = StandardIlluminant.D65): LAB {
+export function xyzToLAB(xyz: IXYZ, illuminant: StandardIlluminant = StandardIlluminant.D65): LAB {
   const refWhite: XYZ = getReferenceWhite(illuminant);
   const xr: number = xyz.x / refWhite.x;
   const yr: number = xyz.y / refWhite.y;
@@ -45,7 +45,7 @@ function transformChannelYLABToXYZ(l: number): number {
 }
 
 // http://www.brucelindbloom.com/index.html?Eqn_XYZ_to_Lab.html
-export function LABToXYZ(lab: ILAB, illuminant: StandardIlluminant = StandardIlluminant.D65): XYZ {
+export function labToXYZ(lab: ILAB, illuminant: StandardIlluminant = StandardIlluminant.D65): XYZ {
   const fy: number = (lab.l + 16) / 116;
   const fz: number = fy - lab.b / 200;
   const fx: number = lab.a / 500 + fy;

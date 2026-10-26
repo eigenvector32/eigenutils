@@ -5,7 +5,7 @@ import * as rawColorDataNamed from "./colorData_named.json";
 import { parseArray, IRawTestColorData, IRawTestColorDataItem } from "./IRawTestColorData";
 import { XYZ, StandardIlluminant } from "../IXYZ";
 import { LAB } from "../ILAB";
-import { XYZToLAB, LABToXYZ } from "../converters/XYZLAB";
+import { xyzToLAB, labToXYZ } from "../converters/XYZLAB";
 
 const colorData: IRawTestColorData = rawColorDataNamed;
 
@@ -20,7 +20,7 @@ describe("Tests for XYZLAB", () => {
     colorData.data.forEach((rawColor: IRawTestColorDataItem) => {
       const rawXYZ: number[] = parseArray(rawColor.xyzd65);
       const xyz: XYZ = new XYZ(rawXYZ[0], rawXYZ[1], rawXYZ[2]);
-      const lab: LAB = XYZToLAB(xyz, StandardIlluminant.D65);
+      const lab: LAB = xyzToLAB(xyz, StandardIlluminant.D65);
       const knownLAB: number[] = parseArray(rawColor.labd65);
       expect(lab.l).toBeCloseTo(knownLAB[0], signifigantDigits);
       expect(lab.a).toBeCloseTo(knownLAB[1], signifigantDigits);
@@ -32,7 +32,7 @@ describe("Tests for XYZLAB", () => {
     colorData.data.forEach((rawColor: IRawTestColorDataItem) => {
       const rawLAB: number[] = parseArray(rawColor.labd65);
       const lab: LAB = new LAB(rawLAB[0], rawLAB[1], rawLAB[2]);
-      const xyz: XYZ = LABToXYZ(lab, StandardIlluminant.D65);
+      const xyz: XYZ = labToXYZ(lab, StandardIlluminant.D65);
       const knownXYZ: number[] = parseArray(rawColor.xyzd65);
       expect(xyz.x).toBeCloseTo(knownXYZ[0], signifigantDigits);
       expect(xyz.y).toBeCloseTo(knownXYZ[1], signifigantDigits);
@@ -44,7 +44,7 @@ describe("Tests for XYZLAB", () => {
     colorData.data.forEach((rawColor: IRawTestColorDataItem) => {
       const rawXYZ: number[] = parseArray(rawColor.xyzd50);
       const xyz: XYZ = new XYZ(rawXYZ[0], rawXYZ[1], rawXYZ[2]);
-      const lab: LAB = XYZToLAB(xyz, StandardIlluminant.D50);
+      const lab: LAB = xyzToLAB(xyz, StandardIlluminant.D50);
       const knownLAB: number[] = parseArray(rawColor.labd50);
       expect(lab.l).toBeCloseTo(knownLAB[0], signifigantDigits);
       expect(lab.a).toBeCloseTo(knownLAB[1], signifigantDigits);
@@ -52,11 +52,11 @@ describe("Tests for XYZLAB", () => {
     });
   });
 
-    test("LABToXYZ D50", () => {
+  test("LABToXYZ D50", () => {
     colorData.data.forEach((rawColor: IRawTestColorDataItem) => {
       const rawLAB: number[] = parseArray(rawColor.labd50);
       const lab: LAB = new LAB(rawLAB[0], rawLAB[1], rawLAB[2]);
-      const xyz: XYZ = LABToXYZ(lab, StandardIlluminant.D50);
+      const xyz: XYZ = labToXYZ(lab, StandardIlluminant.D50);
       const knownXYZ: number[] = parseArray(rawColor.xyzd50);
       expect(xyz.x).toBeCloseTo(knownXYZ[0], signifigantDigits);
       expect(xyz.y).toBeCloseTo(knownXYZ[1], signifigantDigits);
