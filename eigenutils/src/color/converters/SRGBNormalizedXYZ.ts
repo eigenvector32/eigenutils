@@ -3,17 +3,12 @@
 
 import { IReadonlyMatrix3x3 } from "../../math/IMatrix3x3";
 import { normalizedSRGBToLinearRGBChannel, linearRGBToNormalizedSRGBChannel } from "./NormalizedSRGBLinearRGB";
-import { IXYZ, XYZ } from "../IXYZ";
+import { IXYZ, XYZ, StandardIlluminant } from "../IXYZ";
 import { ISRGBNormalized, SRGBNormalized } from "../ISRGBNormalized";
 import { IReadonlyVector3 } from "../../math/IVector3";
 import { linearTransform } from "../../math/linearTransform";
 
 // http://www.brucelindbloom.com/index.html?Eqn_RGB_XYZ_Matrix.html
-
-export enum StandardIlluminant {
-  D65,
-  D50
-}
 
 // linear rgb to CIEXYZ with D65 standard illuminant
 export const linearRGBToXYZD65: IReadonlyMatrix3x3 = {
@@ -90,8 +85,8 @@ export function getXYZToRGBTransform(illuminant: StandardIlluminant): IReadonlyM
 }
 
 // http://www.brucelindbloom.com/Eqn_RGB_to_XYZ.html
-// This converts to XYZ using the D65 standard illuminant
-export function srgbNormalizedToXYZ(rgb: ISRGBNormalized, illuminant: StandardIlluminant = StandardIlluminant.D65): IXYZ {
+// This converts to XYZ using the specified standard illuminant
+export function srgbNormalizedToXYZ(rgb: ISRGBNormalized, illuminant: StandardIlluminant = StandardIlluminant.D65): XYZ {
   // Convert from gamma corrected sRGB to linear RGB
   const linearR: number = normalizedSRGBToLinearRGBChannel(rgb.r);
   const linearG: number = normalizedSRGBToLinearRGBChannel(rgb.g);
@@ -103,8 +98,8 @@ export function srgbNormalizedToXYZ(rgb: ISRGBNormalized, illuminant: StandardIl
 }
 
 // http://www.brucelindbloom.com/Eqn_XYZ_to_RGB.html
-// This converts from XYZ using the D65 standard illuminant
-export function xyzToSRGBNormalized(xyz: IXYZ, illuminant: StandardIlluminant = StandardIlluminant.D65): ISRGBNormalized {
+// This converts from XYZ using the specified standard illuminant
+export function xyzToSRGBNormalized(xyz: IXYZ, illuminant: StandardIlluminant = StandardIlluminant.D65): SRGBNormalized {
   // Linear transform to linear RGB
 
   const linearRGB: IReadonlyVector3 = linearTransform(getXYZToRGBTransform(illuminant), xyz.x, xyz.y, xyz.z);

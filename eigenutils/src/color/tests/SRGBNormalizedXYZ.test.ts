@@ -3,8 +3,8 @@
 
 import * as rawColorDataNamed from "./colorData_named.json";
 import { parseArray, IRawTestColorData, IRawTestColorDataItem } from "./IRawTestColorData";
-import { srgbNormalizedToXYZ, StandardIlluminant, xyzToSRGBNormalized } from "../converters/SRGBNormalizedXYZ";
-import { IXYZ, XYZ } from "../IXYZ";
+import { srgbNormalizedToXYZ, xyzToSRGBNormalized } from "../converters/SRGBNormalizedXYZ";
+import { IXYZ, XYZ, StandardIlluminant } from "../IXYZ";
 import { ISRGBNormalized, SRGBNormalized } from "../ISRGBNormalized";
 
 const colorData: IRawTestColorData = rawColorDataNamed;

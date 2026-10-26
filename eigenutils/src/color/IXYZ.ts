@@ -1,6 +1,12 @@
 // Copyright (c) 2026 Matthew Owen
 // Distributed under MIT license
 
+export enum StandardIlluminant {
+  D65,
+  D50
+}
+
+// https://en.wikipedia.org/wiki/CIE_1931_color_space
 // Valid RGB colors require channels in the range [0,255].
 // Values outside that range may exist when converting between spaces larger than RGB.
 export interface IXYZ {
@@ -45,5 +51,19 @@ export class XYZ implements IXYZ {
 
   public static equals(lhs: IXYZ, rhs: IXYZ): boolean {
     return lhs.x === rhs.x && lhs.y === rhs.y && lhs.z === rhs.z;
+  }
+}
+
+export const referenceWhiteD65: XYZ = new XYZ(0.95047, 1, 1.08883);
+export const referenceWhiteD50: XYZ = new XYZ(0.96422, 1, 0.82521);
+
+export function getReferenceWhite(illuminant: StandardIlluminant): XYZ {
+  switch (illuminant) {
+    case StandardIlluminant.D65:
+      return referenceWhiteD65;
+    case StandardIlluminant.D50:
+      return referenceWhiteD50;
+    default:
+      throw new Error(`Unknown standard illuminant ${illuminant}`);
   }
 }
