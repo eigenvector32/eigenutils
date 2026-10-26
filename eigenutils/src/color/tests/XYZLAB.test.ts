@@ -39,4 +39,28 @@ describe("Tests for XYZLAB", () => {
       expect(xyz.z).toBeCloseTo(knownXYZ[2], signifigantDigits);
     });
   });
+
+  test("XYZToLAB D50", () => {
+    colorData.data.forEach((rawColor: IRawTestColorDataItem) => {
+      const rawXYZ: number[] = parseArray(rawColor.xyzd50);
+      const xyz: XYZ = new XYZ(rawXYZ[0], rawXYZ[1], rawXYZ[2]);
+      const lab: LAB = XYZToLAB(xyz, StandardIlluminant.D50);
+      const knownLAB: number[] = parseArray(rawColor.labd50);
+      expect(lab.l).toBeCloseTo(knownLAB[0], signifigantDigits);
+      expect(lab.a).toBeCloseTo(knownLAB[1], signifigantDigits);
+      expect(lab.b).toBeCloseTo(knownLAB[2], signifigantDigits);
+    });
+  });
+
+    test("LABToXYZ D50", () => {
+    colorData.data.forEach((rawColor: IRawTestColorDataItem) => {
+      const rawLAB: number[] = parseArray(rawColor.labd50);
+      const lab: LAB = new LAB(rawLAB[0], rawLAB[1], rawLAB[2]);
+      const xyz: XYZ = LABToXYZ(lab, StandardIlluminant.D50);
+      const knownXYZ: number[] = parseArray(rawColor.xyzd50);
+      expect(xyz.x).toBeCloseTo(knownXYZ[0], signifigantDigits);
+      expect(xyz.y).toBeCloseTo(knownXYZ[1], signifigantDigits);
+      expect(xyz.z).toBeCloseTo(knownXYZ[2], signifigantDigits);
+    });
+  });
 });
