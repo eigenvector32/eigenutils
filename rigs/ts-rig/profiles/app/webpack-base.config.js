@@ -66,7 +66,6 @@ function createWebpackConfig({ env, argv, projectRoot, extendedConfig }) {
             options: {
               importLoaders: 1,
               url: true,
-              modules: true,
               sourceMap: config.mode == "development" ? true : false
             }
           }
