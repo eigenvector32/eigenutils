@@ -2,8 +2,9 @@
 // Distributed under MIT license
 
 import { DependencyState } from "../IDependency";
-import { BaseDependencyContainer, DependencyContainerState, IDependencyContainer, isIDependencyContainer } from "../IDependencyContainer";
+import { DependencyContainerState, IDependencyContainer, isIDependencyContainer } from "../IDependencyContainer";
 import { MockDependency } from "./MockDependency";
+import { BaseDependencyContainer } from "../BaseDependencyContainer";
 
 describe("Tests for BaseDependencyContainer", () => {
   test("isIDependencyContainer", () => {

@@ -1,4 +1,5 @@
-import { BaseDependency, DependencyState } from "../IDependency";
+import { DependencyState } from "../IDependency";
+import { BaseDependency } from "../BaseDependency";
 
 export class MockDependency extends BaseDependency {
   constructor(initialState: DependencyState = DependencyState.Uninitialized) {
