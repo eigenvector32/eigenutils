@@ -55,4 +55,8 @@ export class SRGBA implements ISRGBA {
   public static equals(lhs: ISRGBA, rhs: ISRGBA): boolean {
     return lhs.r === rhs.r && lhs.g === rhs.g && lhs.b === rhs.b && lhs.a === rhs.a;
   }
+
+  public static fromISRGB(input: ISRGB, a: number = 255): SRGBA {
+    return new SRGBA(input.r, input.g, input.b, a);
+  }
 }

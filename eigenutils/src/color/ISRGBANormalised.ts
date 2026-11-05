@@ -1,5 +1,6 @@
 // Copyright (c) 2026 Matthew Owen
 // Distributed under MIT license
+import { SRGBA } from "./ISRGBA";
 import { ISRGBNormalized } from "./ISRGBNormalized";
 
 // Valid RGBA colors require channels in the range [0,1].
@@ -53,5 +54,9 @@ export class SRGBANormalized implements ISRGBANormalized {
 
   public static equals(lhs: ISRGBANormalized, rhs: ISRGBANormalized): boolean {
     return lhs.r === rhs.r && lhs.g === rhs.g && lhs.b === rhs.b && lhs.a === rhs.a;
+  }
+
+  public static fromISRGBNormalized(input: ISRGBANormalized, a: number): SRGBA {
+    return new SRGBA(input.r, input.g, input.b, a);
   }
 }
